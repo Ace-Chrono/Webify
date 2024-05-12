@@ -1,0 +1,46 @@
+.container {
+    width: 200px;
+    height: 580px;
+    color: #314d3e;
+}
+
+.title {
+    text-align: center;
+    color: black;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+}
+
+.row {
+    display: grid; /* Use grid layout */
+    grid-template-columns: repeat(3, 1fr); /* Create three equal-width columns */
+    grid-gap: 10px; /* Gap between grid items */
+}
+
+.button {
+    padding: 5px; /* Just for visualization */
+    border: 1px solid black; /* Just for visualization */
+    text-align: center;
+    margin: 10px auto;
+}
+
+#color_wheel {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: conic-gradient(red, orange, yellow, green, blue, indigo, violet, red);
+    margin: 0 auto;
+}
+
+#font_selector {
+    width: 200px;
+    height: 80px;
+    border: 1px solid black;
+    margin: 10px auto;
+    text-align: center;
+}
+
+#log {
+    position: absolute;
+    bottom: 0;
+}
