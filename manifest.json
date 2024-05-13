@@ -3,8 +3,19 @@
     "version": "0.1.0",
     "description": "Customizing web pages to your liking",
     "manifest_version": 3,
+    "permissions": ["activeTab"],
     "action": {
         "default_popup": "main.html",
         "default_icon": "assets/neuro.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "css": ["styles.css"],  
+        "js": ["styles.js"]
       }
+    ]
 }
