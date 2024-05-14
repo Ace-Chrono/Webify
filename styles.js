@@ -38,12 +38,15 @@ function findElementsWithBackgroundColor(rootNode) {
     return elementsWithBackgroundColor;
 }
 
+function changeElementBg(element, color) {
+    element.style.background = color;
+}
+
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     if (message.action === 'changeColor') {
         const elements = findElementsWithBackgroundColor(document.body);
         for (let i = 0; i < elements.length; i++) {
-            elements[i].style.background = message.color;
-            console.log(elements[i])
+            changeElementBg(elements[i], message.color);
         }
     }
 });
