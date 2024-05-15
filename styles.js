@@ -13,27 +13,23 @@ function findElementsWithBackgroundColor(rootNode) {
         return Math.abs(r1 - r2) + Math.abs(g1 - g2) + Math.abs(b1 - b2) < 50;
     }
 
-    // Recursive function to traverse the DOM tree
-    function traverse(node) {
-        // Check if the node has a computed background color
-        const computedStyle = getComputedStyle(node);
+    var all = document.getElementsByTagName("*");
+
+    for (var i=0, max=all.length; i < max; i++) {
+        const computedStyle = getComputedStyle(all[i]);
         const backgroundColor = computedStyle.backgroundColor;
 
-        // Check if the computed background color matches the target color
-        if (elementsWithBackgroundColor.length === 0 || isSimilar(getRGB(backgroundColor), getRGB(getComputedStyle(elementsWithBackgroundColor[0]).backgroundColor))) {
-            elementsWithBackgroundColor.push(node);
-        }
-
-        // Continue traversal for child nodes
-        for (const childNode of node.childNodes) {
-            if (childNode.nodeType === Node.ELEMENT_NODE) {
-                traverse(childNode);
-            }
+        // Check if the background color is not transparent and is similar to the first element's background color
+        if (backgroundColor && !backgroundColor.includes('rgba') && (elementsWithBackgroundColor.length === 0 || isSimilar(getRGB(backgroundColor), getRGB(getComputedStyle(elementsWithBackgroundColor[0]).backgroundColor)))) {
+            elementsWithBackgroundColor.push(all[i]);
         }
     }
 
-    // Start traversal from the root node
-    traverse(rootNode);
+    for (i=0; i < elementsWithBackgroundColor.length; i++)
+    {
+        console.log(elementsWithBackgroundColor[i]);
+    }
+    
 
     return elementsWithBackgroundColor;
 }
