@@ -15,32 +15,46 @@ function changeElementBg(element, color) {
 }
 
 function findElementsWithBackgroundColor(rootNode) {
-    const elements = rootNode.getElementsByTagName("*");
+    const elements = rootNode.querySelectorAll("*:not(script):not(svg):not(link)");
     const elementsWithBackground = [];
+    const relevantKeywords = ["background", "content"];
 
-    for (let i = 0; i < elements.length; i++) {
-        const computedStyle = getComputedStyle(elements[i]);
+    elements.forEach(element => {
+        const computedStyle = window.getComputedStyle(element);
         const properties = [];
 
-        for (let j = 0; j < computedStyle.length; j++) {
-            const propertyName = computedStyle.item(j);
-            if ((propertyName.indexOf("background") !== -1 || propertyName.indexOf("content") !== -1) && (computedStyle.getPropertyValue(propertyName).includes("rgb") || computedStyle.getPropertyValue(propertyName).includes("#"))) {
-                properties.push(propertyName);
+        for (let i = 0; i < computedStyle.length; i++) {
+            const propertyName = computedStyle[i];
+            const propertyValue = computedStyle.getPropertyValue(propertyName);
+
+            if (relevantKeywords.some(keyword => propertyName.includes(keyword)) && (propertyValue.includes("rgb") || propertyValue.includes("#"))) {
+                element.style.setProperty(propertyName, 'unset', 'important');
+                const unsetValue = computedStyle.getPropertyValue(propertyName);
+
+                element.style.removeProperty(propertyName); // Remove the unset property
+
+                if (unsetValue !== propertyValue) {
+                    properties.push(propertyName);
+                }
             }
         }
 
         if (properties.length > 0) {
-            elementsWithBackground.push({ element: elements[i], properties: properties });
+            elementsWithBackground.push({ element, properties });
         }
-    }
+    });
 
     return elementsWithBackground;
 }
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+let elementsWithBackground = [];
+
+//Current run time: 0:04. 
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { 
     if (message.action === 'changeColor') {
-        const elementsWithBackground = findElementsWithBackgroundColor(document);
-        console.log(elementsWithBackground);
+        if (elementsWithBackground.length == 0){
+            elementsWithBackground = findElementsWithBackgroundColor(document);
+        }
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
                 elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j], message.color);
