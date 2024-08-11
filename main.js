@@ -2,9 +2,15 @@ document.addEventListener("DOMContentLoaded", function() {
     const log = document.getElementById("log");
     log.textContent = "loaded";
     const colorWheel = document.getElementById("wheel_image");
+    const invertButton = document.getElementById("invert_button")
+
+    invertButton.addEventListener("click", function(event) {
+        log.textContent = "Invert button clicked";
+        chrome.runtime.sendMessage({ action: 'invertColor'});
+    });
   
     colorWheel.addEventListener("click", function(event) {
-        log.textContent = "clicked";
+        log.textContent = "Color wheel clicked";
         const color = getColorAtPosition(event.offsetX, event.offsetY, colorWheel);
         log.textContent = "Selected color:" + color;
         chrome.runtime.sendMessage({ action: 'changeColor', color: color });

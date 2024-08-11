@@ -14,6 +14,16 @@ function changeElementBg(element, color) {
     element.style.background = color;
 }
 
+function invertColor(rgb) {
+    // Extract the red, green, and blue components from the rgb string
+    const rgbValues = rgb.match(/\d+/g);
+    const r = 255 - rgbValues[0];
+    const g = 255 - rgbValues[1];
+    const b = 255 - rgbValues[2];
+    
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
 function findElementsWithBackgroundColor(rootNode) {
     const elements = rootNode.querySelectorAll("*:not(script):not(svg):not(link)");
     const elementsWithBackground = [];
@@ -48,6 +58,7 @@ function findElementsWithBackgroundColor(rootNode) {
 }
 
 let elementsWithBackground = [];
+const log = document.getElementById("log");
 
 //Current run time: 0:04. 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { 
@@ -58,6 +69,16 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
                 elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j], message.color);
+            }
+        }
+    }
+    if (message.action === 'invertColor') {
+        if (elementsWithBackground.length == 0){
+            elementsWithBackground = findElementsWithBackgroundColor(document);
+        }
+        for (let i = 0; i < elementsWithBackground.length; i++) {
+            for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
+                elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j], invertColor(getComputedStyle(elementsWithBackground[i].element).getPropertyValue(elementsWithBackground[i].properties[j])));
             }
         }
     }
