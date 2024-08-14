@@ -24,6 +24,12 @@
     margin: 10px auto;
 }
 
+.tight_button {
+    text-align: center;
+    padding: 0px;
+    margin: 0px auto;
+}
+
 #color_wheel {
     width: 200px;
     height: 200px;

@@ -44,7 +44,7 @@ function findElementsWithBackgroundColor(rootNode) {
                 element.style.removeProperty(propertyName); // Remove the unset property
 
                 if (unsetValue !== propertyValue) {
-                    properties.push(propertyName);
+                    properties.push([propertyName, propertyValue]);
                 }
             }
         }
@@ -57,6 +57,28 @@ function findElementsWithBackgroundColor(rootNode) {
     return elementsWithBackground;
 }
 
+function findElementsWithText(rootNode) {
+    // Get all elements in the document
+    const allElements = rootNode.querySelectorAll('*');
+    const elementsWithText = [];
+
+    // Loop through each element
+    allElements.forEach(element => {
+        // Check if the element has any text nodes that are not empty or just whitespace
+        const hasText = Array.from(element.childNodes).some(node => {
+            return node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '';
+        });
+
+        // If the element has text, add it to the results array
+        if (hasText) {
+            elementsWithText.push(element);
+        }
+    });
+
+    return elementsWithText;
+}
+
+let elementsWithText = []; 
 let elementsWithBackground = [];
 const log = document.getElementById("log");
 
@@ -68,7 +90,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         }
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
-                elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j], message.color);
+                elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], message.color);
             }
         }
     }
@@ -78,8 +100,26 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         }
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
-                elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j], invertColor(getComputedStyle(elementsWithBackground[i].element).getPropertyValue(elementsWithBackground[i].properties[j])));
+                elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], invertColor(getComputedStyle(elementsWithBackground[i].element).getPropertyValue(elementsWithBackground[i].properties[j][0])));
             }
+        }
+    }
+    if (message.action === 'resetColor') {
+        if (elementsWithBackground.length == 0){
+            elementsWithBackground = findElementsWithBackgroundColor(document);
+        }
+        for (let i = 0; i < elementsWithBackground.length; i++) {
+            for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
+                elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], elementsWithBackground[i].properties[j][1]);
+            }
+        }
+    }
+    if (message.action === 'changeFont') {
+        if (elementsWithText.length == 0){
+            elementsWithText = findElementsWithText(document);
+        }
+        for (let i = 0; i < elementsWithText.length; i++) {
+            elementsWithText[i].style.fontFamily = message.font;
         }
     }
 });

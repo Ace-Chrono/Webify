@@ -2,12 +2,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const log = document.getElementById("log");
     log.textContent = "loaded";
     const colorWheel = document.getElementById("wheel_image");
-    const invertButton = document.getElementById("invert_button")
-
-    invertButton.addEventListener("click", function(event) {
-        log.textContent = "Invert button clicked";
-        chrome.runtime.sendMessage({ action: 'invertColor'});
-    });
+    const invertButton = document.getElementById("invert_button");
+    const resetButton = document.getElementById("reset_button");
+    const fonts = document.getElementsByClassName("tight_button"); 
   
     colorWheel.addEventListener("click", function(event) {
         log.textContent = "Color wheel clicked";
@@ -15,6 +12,28 @@ document.addEventListener("DOMContentLoaded", function() {
         log.textContent = "Selected color:" + color;
         chrome.runtime.sendMessage({ action: 'changeColor', color: color });
     });
+    
+    invertButton.addEventListener("click", function(event) {
+        log.textContent = "Invert button clicked";
+        chrome.runtime.sendMessage({ action: 'invertColor'});
+    });
+    
+    resetButton.addEventListener("click", function(event) {
+        log.textContent = "Reset button clicked";
+        chrome.runtime.sendMessage({ action: 'resetColor'});
+    });
+
+    for (let i = 0; i < fonts.length; i++) {
+        fonts[i].addEventListener("click", function(event) {
+            // Get the computed style of the clicked element
+            const fontFamily = window.getComputedStyle(event.target).fontFamily;
+    
+            log.textContent = "Font" + fontFamily;
+
+            // Send the font family as part of the message
+            chrome.runtime.sendMessage({ action: 'changeFont', font: fontFamily });
+        });
+    }
   
     function getColorAtPosition(x, y, element) {
         const ctx = document.createElement("canvas").getContext("2d");
