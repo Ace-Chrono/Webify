@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const invertButton = document.getElementById("invert_button");
     const resetButton = document.getElementById("reset_button");
     const fonts = document.getElementsByClassName("tight_button"); 
+    const advancedButton = document.getElementById("advanced_button");
   
     colorWheel.addEventListener("click", function(event) {
         log.textContent = "Color wheel clicked";
@@ -34,6 +35,10 @@ document.addEventListener("DOMContentLoaded", function() {
             chrome.runtime.sendMessage({ action: 'changeFont', font: fontFamily });
         });
     }
+
+    advancedButton.addEventListener("click", function(event) {
+        window.open('advanced.html', 'AdvancedOptions', 'width=600,height=400');
+    });
   
     function getColorAtPosition(x, y, element) {
         const ctx = document.createElement("canvas").getContext("2d");
