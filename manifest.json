@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "description": "Customizing web pages to your liking",
     "manifest_version": 3,
-    "permissions": ["activeTab"],
+    "permissions": ["storage", "tabs"],
     "action": {
         "default_popup": "main.html",
         "default_icon": "assets/neuro.png"

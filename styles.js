@@ -1,3 +1,5 @@
+console.log('Content script loaded');
+
 function getRGB(color) {
     color = parseInt(color.substring(1), 16);
     const r = color >> 16;
@@ -145,6 +147,9 @@ const log = document.getElementById("log");
 
 //Current run time: 0:04. 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { 
+    if (message.action === 'storeTabId') {
+        chrome.storage.local.set({ activeTabId: sender.tab.id });
+    }
     if (message.action === 'changeColor') {
         if (elementsWithBackground.length == 0){
             elementsWithBackground = findElementsWithBackgroundColor(document);
@@ -182,5 +187,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         for (let i = 0; i < elementsWithText.length; i++) {
             elementsWithText[i].style.fontFamily = message.font;
         }
+    }
+    if (message.action === 'changeContrast') {
+        console.log("Contrast: " + message.amount)
+    }
+    if (message.action === 'changeBrightness') {
+        console.log("Brightness: " + message.amount)
+    }
+    if (message.action === 'changeSaturation') {
+        console.log("Saturation: " + message.amount)
     }
 });

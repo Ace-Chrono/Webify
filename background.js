@@ -19,4 +19,34 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
             chrome.tabs.sendMessage(tabs[0].id, { action: 'changeFont', font: message.font});
         });
     }
+    if (message.action === 'changeContrast') {
+        chrome.storage.local.get('activeTabId', function(data) {
+            const activeTabId = data.activeTabId;
+            if (activeTabId) {
+                chrome.tabs.sendMessage(activeTabId, { action: 'changeContrast', amount: message.amount });
+            } else {
+                console.error('No active tab ID found in storage');
+            }
+        });
+    }
+    if (message.action === 'changeBrightness') {
+        chrome.storage.local.get('activeTabId', function(data) {
+            const activeTabId = data.activeTabId;
+            if (activeTabId) {
+                chrome.tabs.sendMessage(activeTabId, { action: 'changeBrightness', amount: message.amount });
+            } else {
+                console.error('No active tab ID found in storage');
+            }
+        });
+    }
+    if (message.action === 'changeSaturation') {
+        chrome.storage.local.get('activeTabId', function(data) {
+            const activeTabId = data.activeTabId;
+            if (activeTabId) {
+                chrome.tabs.sendMessage(activeTabId, { action: 'changeSaturation', amount: message.amount });
+            } else {
+                console.error('No active tab ID found in storage');
+            }
+        });
+    }
 });
