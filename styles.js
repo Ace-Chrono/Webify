@@ -145,6 +145,10 @@ let elementsWithText = [];
 let elementsWithBackground = [];
 const log = document.getElementById("log");
 
+let currentContrast = 100;  // Default values
+let currentBrightness = 100;
+let currentSaturation = 100;
+
 //Current run time: 0:04. 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { 
     if (message.action === 'storeTabId') {
@@ -190,11 +194,32 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     }
     if (message.action === 'changeContrast') {
         console.log("Contrast: " + message.amount)
+        currentContrast = message.amount;
+        document.body.style.filter = `
+        contrast(${currentContrast}%)
+        brightness(${currentBrightness}%)
+        saturate(${currentSaturation}%)
+    `;
+
     }
     if (message.action === 'changeBrightness') {
         console.log("Brightness: " + message.amount)
+        currentBrightness = message.amount;
+        document.body.style.filter = `
+        contrast(${currentContrast}%)
+        brightness(${currentBrightness}%)
+        saturate(${currentSaturation}%)
+    `;
+
     }
     if (message.action === 'changeSaturation') {
         console.log("Saturation: " + message.amount)
+        currentSaturation = message.amount;
+        document.body.style.filter = `
+        contrast(${currentContrast}%)
+        brightness(${currentBrightness}%)
+        saturate(${currentSaturation}%)
+    `;
+
     }
 });
