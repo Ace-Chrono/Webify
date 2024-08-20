@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const resetButton = document.getElementById("reset_button");
     const fonts = document.getElementsByClassName("tight_button"); 
     const advancedButton = document.getElementById("advanced_button");
+    const caseButton = document.getElementById("case_button");
+    const sizeButton = document.getElementById("size_button");
   
     colorWheel.addEventListener("click", function(event) {
         log.textContent = "Color wheel clicked";
@@ -46,7 +48,18 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     advancedButton.addEventListener("click", function(event) {
+        log.textContent = "Advanced button clicked";
         window.open('advanced.html', 'AdvancedOptions', 'width=600,height=400');
+    });
+
+    sizeButton.addEventListener("click", function(event) {
+        log.textContent = "Size button clicked";
+        chrome.runtime.sendMessage({ action: 'changeSize'});
+    });
+
+    caseButton.addEventListener("click", function(event) {
+        log.textContent = "Case button clicked";
+        chrome.runtime.sendMessage({ action: 'changeCase'});
     });
   
     function getColorAtPosition(x, y, element) {

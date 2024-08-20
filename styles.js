@@ -149,6 +149,10 @@ let currentContrast = 100;  // Default values
 let currentBrightness = 100;
 let currentSaturation = 100;
 
+let zoomedIn = false; 
+
+let currentCase = "normal"; 
+
 //Current run time: 0:04. 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { 
     if (message.action === 'storeTabId') {
@@ -221,5 +225,37 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         saturate(${currentSaturation}%)
     `;
 
+    }
+    if (message.action === 'changeSize') {
+        if (zoomedIn == false){
+            document.body.style.zoom = 150 + '%';
+            zoomedIn = true;
+        }
+        else if (zoomedIn == true){
+            document.body.style.zoom = 100 + '%';
+            zoomedIn = false;
+        }
+    }
+    if (message.action === 'changeCase') {
+        if (elementsWithText.length == 0) {
+            elementsWithText = findElementsWithText(document);
+        }
+    
+        if (currentCase === 'normal') {
+            for (let i = 0; i < elementsWithText.length; i++) {
+                elementsWithText[i].style.textTransform = 'uppercase';
+            }
+            currentCase = 'upper';
+        } else if (currentCase === 'upper') {
+            for (let i = 0; i < elementsWithText.length; i++) {
+                elementsWithText[i].style.textTransform = 'lowercase';
+            }
+            currentCase = 'lower';
+        } else if (currentCase === 'lower') {
+            for (let i = 0; i < elementsWithText.length; i++) {
+                elementsWithText[i].style.textTransform = 'none';
+            }
+            currentCase = 'normal';
+        }
     }
 });
