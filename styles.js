@@ -153,6 +153,49 @@ let zoomedIn = false;
 
 let currentCase = "normal"; 
 
+let zapMode = false; 
+let lastElement = null;
+const originalStyle = {};
+
+function highlightElement(event) {
+    if (zapMode) {
+        // Remove highlight from the last element
+        if (lastElement) {
+            lastElement.style.outline = originalStyle.outline;
+            lastElement.style.cursor = originalStyle.cursor;
+        }
+
+        // Save the original style of the current element
+        originalStyle.outline = event.target.style.outline;
+        originalStyle.cursor = event.target.style.cursor;
+
+        // Apply highlight style
+        event.target.style.outline = '2px solid red';
+        event.target.style.cursor = 'pointer';
+
+        lastElement = event.target;
+    }
+}
+
+function removeHighlight(event) {
+    if (zapMode && lastElement) {
+        // Restore the original style when the mouse leaves the element
+        lastElement.style.outline = originalStyle.outline;
+        lastElement.style.cursor = originalStyle.cursor;
+        lastElement = null;
+    }
+}
+
+function zapElement(event) {
+    if (zapMode) {
+        event.target.style.display = 'none';
+        zapMode = false; // Stop zapping after one element
+        document.removeEventListener('mouseover', highlightElement);
+        document.removeEventListener('mouseout', removeHighlight);
+        document.removeEventListener('click', zapElement);
+    }
+}
+
 //Current run time: 0:04. 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { 
     if (message.action === 'storeTabId') {
@@ -256,6 +299,19 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
                 elementsWithText[i].style.textTransform = 'none';
             }
             currentCase = 'normal';
+        }
+    }
+    if (message.action === 'zap') {
+        zapMode = !zapMode;
+        if (zapMode) {
+            document.addEventListener('mouseover', highlightElement);
+            document.addEventListener('mouseout', removeHighlight);
+            document.addEventListener('click', zapElement);
+        }
+        else {
+            document.removeEventListener('mouseover', highlightElement);
+            document.removeEventListener('mouseout', removeHighlight);
+            document.removeEventListener('click', zapElement);
         }
     }
 });

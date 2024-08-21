@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const advancedButton = document.getElementById("advanced_button");
     const caseButton = document.getElementById("case_button");
     const sizeButton = document.getElementById("size_button");
+    const zapButton = document.getElementById("zap_button");
   
     colorWheel.addEventListener("click", function(event) {
         log.textContent = "Color wheel clicked";
@@ -60,6 +61,11 @@ document.addEventListener("DOMContentLoaded", function() {
     caseButton.addEventListener("click", function(event) {
         log.textContent = "Case button clicked";
         chrome.runtime.sendMessage({ action: 'changeCase'});
+    });
+
+    zapButton.addEventListener("click", function(event) {
+        log.textContent = "Zap button clicked";
+        chrome.runtime.sendMessage({ action: 'zap'});
     });
   
     function getColorAtPosition(x, y, element) {
