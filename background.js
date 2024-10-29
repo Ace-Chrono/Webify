@@ -64,4 +64,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
             chrome.tabs.sendMessage(tabs[0].id, { action: 'zap'});
         });
     }
+    if (message.action === 'injectCSS') {
+        chrome.storage.local.get('activeTabId', function(data) {
+            const activeTabId = data.activeTabId;
+            if (activeTabId) {
+                chrome.tabs.sendMessage(activeTabId, { action: 'injectCSS', css: message.css });
+            } else {
+                console.error('No active tab ID found in storage');
+            }
+        });
+    }
 });

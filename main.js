@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     codeButton.addEventListener("click", function(event) {
         log.textContent = "Code button clicked";
-        window.open('code.html', 'CodeEditor', 'width=600,height=400');
+        window.open('code.html', 'CodeEditor', 'width=600,height=800');
     });
   
     function getColorAtPosition(x, y, element) {

@@ -314,4 +314,15 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             document.removeEventListener('click', zapElement);
         }
     }
+    if (message.action === "injectCSS") {
+        if (message.css) {
+            let styleElement = document.getElementById('injectedCSS');
+            if (!styleElement) {
+                styleElement = document.createElement('style');
+                styleElement.id = 'injectedCSS';
+                document.head.appendChild(styleElement);
+            }
+            styleElement.textContent = message.css;
+        }
+    }
 });
