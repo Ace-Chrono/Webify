@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Code</title>
     <script type="module" src="code.js"></script>
+    <link href="code.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <textarea id="cssEditor" rows="20" cols="50" placeholder="Write your CSS here..."></textarea>
+    <div class="editor-container">
+        <div class="line-numbers" id="lineNumbers">1</div>
+        <textarea id="cssEditor" rows="20" cols="50" placeholder="Write your CSS here..."></textarea>
+    </div>
     <button id="inject_button">Inject CSS</button>
 </body>
 </html>

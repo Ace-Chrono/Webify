@@ -157,6 +157,28 @@ let zapMode = false;
 let lastElement = null;
 const originalStyle = {};
 
+let cssChanges = [];
+
+function addCSSChange(selector, property, value) {
+    // Check if the change already exists
+    const existingChangeIndex = cssChanges.findIndex(change => 
+        change.selector === selector && 
+        change.property === property
+    );
+
+    if (existingChangeIndex > -1) {
+        // Update the existing change with the new value
+        cssChanges[existingChangeIndex].value = value;
+    } else {
+        // Add a new change
+        cssChanges.push({ selector, property, value });
+    }
+}
+
+function generateCSS() {
+    return cssChanges.join('\n');
+}
+
 function highlightElement(event) {
     if (zapMode) {
         // Remove highlight from the last element
@@ -208,6 +230,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
                 elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], message.color);
+                addCSSChange(`#${elementsWithBackground[i].element.id}`, elementsWithBackground[i].properties[j][0], message.color);
             }
         }
     }
@@ -218,6 +241,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
                 elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], invertColor(getComputedStyle(elementsWithBackground[i].element).getPropertyValue(elementsWithBackground[i].properties[j][0])));
+                addCSSChange(`#${elementsWithBackground[i].element.id}`, elementsWithBackground[i].properties[j][0], invertColor(getComputedStyle(elementsWithBackground[i].element).getPropertyValue(elementsWithBackground[i].properties[j][0])));
             }
         }
     }
@@ -228,6 +252,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
                 elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], elementsWithBackground[i].properties[j][1]);
+                addCSSChange(`#${elementsWithBackground[i].element.id}`, elementsWithBackground[i].properties[j][0], elementsWithBackground[i].properties[j][1]);
             }
         }
     }
@@ -237,6 +262,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         }
         for (let i = 0; i < elementsWithText.length; i++) {
             elementsWithText[i].style.fontFamily = message.font;
+            addCSSChange(`#${elementsWithText[i].id}`, 'font-family', message.font);
         }
     }
     if (message.action === 'changeContrast') {
@@ -247,7 +273,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         brightness(${currentBrightness}%)
         saturate(${currentSaturation}%)
     `;
-
+        addCSSChange('body', 'filter', document.body.style.filter);
     }
     if (message.action === 'changeBrightness') {
         console.log("Brightness: " + message.amount)
@@ -257,7 +283,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         brightness(${currentBrightness}%)
         saturate(${currentSaturation}%)
     `;
-
+        addCSSChange('body', 'filter', document.body.style.filter);
     }
     if (message.action === 'changeSaturation') {
         console.log("Saturation: " + message.amount)
@@ -267,7 +293,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         brightness(${currentBrightness}%)
         saturate(${currentSaturation}%)
     `;
-
+        addCSSChange('body', 'filter', document.body.style.filter);
     }
     if (message.action === 'changeSize') {
         if (zoomedIn == false){
@@ -278,6 +304,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             document.body.style.zoom = 100 + '%';
             zoomedIn = false;
         }
+        addCSSChange('body', 'zoom', zoomValue);
     }
     if (message.action === 'changeCase') {
         if (elementsWithText.length == 0) {
@@ -287,16 +314,19 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         if (currentCase === 'normal') {
             for (let i = 0; i < elementsWithText.length; i++) {
                 elementsWithText[i].style.textTransform = 'uppercase';
+                addCSSChange(`#${elementsWithText[i].id}`, 'text-transform', 'uppercase');
             }
             currentCase = 'upper';
         } else if (currentCase === 'upper') {
             for (let i = 0; i < elementsWithText.length; i++) {
                 elementsWithText[i].style.textTransform = 'lowercase';
+                addCSSChange(`#${elementsWithText[i].id}`, 'text-transform', 'lowercase');
             }
             currentCase = 'lower';
         } else if (currentCase === 'lower') {
             for (let i = 0; i < elementsWithText.length; i++) {
                 elementsWithText[i].style.textTransform = 'none';
+                addCSSChange(`#${elementsWithText[i].id}`, 'text-transform', 'none');
             }
             currentCase = 'normal';
         }
@@ -324,5 +354,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
             styleElement.textContent = message.css;
         }
+        console.log(cssChanges);
     }
 });

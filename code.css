@@ -1,0 +1,47 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100vh;
+    margin: 0;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Container for the textarea and line numbers */
+.editor-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Line number column */
+.line-numbers {
+    background-color: #f3f3f3;
+    color: #888;
+    padding: 5px;
+    text-align: right;
+    user-select: none;
+    border-right: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Textarea styling */
+#cssEditor {
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    resize: none;
+    border: none;
+    outline: none;
+    box-sizing: border-box;
+    font-family: monospace;
+}
+
+#inject_button {
+    margin-top: 10px;
+    align-self: center;
+}
