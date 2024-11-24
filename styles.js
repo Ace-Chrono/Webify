@@ -230,7 +230,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
                 elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], message.color);
-                addCSSChange(`#${elementsWithBackground[i].element.id}`, elementsWithBackground[i].properties[j][0], message.color);
+                addCSSChange(`#${elementsWithBackground[i].element.classList[0]}`, elementsWithBackground[i].properties[j][0], message.color);
             }
         }
     }
@@ -241,7 +241,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
                 elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], invertColor(getComputedStyle(elementsWithBackground[i].element).getPropertyValue(elementsWithBackground[i].properties[j][0])));
-                addCSSChange(`#${elementsWithBackground[i].element.id}`, elementsWithBackground[i].properties[j][0], invertColor(getComputedStyle(elementsWithBackground[i].element).getPropertyValue(elementsWithBackground[i].properties[j][0])));
+                addCSSChange(`#${elementsWithBackground[i].element.classList[0]}`, elementsWithBackground[i].properties[j][0], invertColor(getComputedStyle(elementsWithBackground[i].element).getPropertyValue(elementsWithBackground[i].properties[j][0])));
             }
         }
     }
@@ -252,7 +252,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         for (let i = 0; i < elementsWithBackground.length; i++) {
             for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
                 elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], elementsWithBackground[i].properties[j][1]);
-                addCSSChange(`#${elementsWithBackground[i].element.id}`, elementsWithBackground[i].properties[j][0], elementsWithBackground[i].properties[j][1]);
+                addCSSChange(`#${elementsWithBackground[i].element.classList[0]}`, elementsWithBackground[i].properties[j][0], elementsWithBackground[i].properties[j][1]);
             }
         }
     }
@@ -262,7 +262,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         }
         for (let i = 0; i < elementsWithText.length; i++) {
             elementsWithText[i].style.fontFamily = message.font;
-            addCSSChange(`#${elementsWithText[i].id}`, 'font-family', message.font);
+            addCSSChange(`#${elementsWithText[i].classList[0]}`, 'font-family', message.font);
         }
     }
     if (message.action === 'changeContrast') {
@@ -314,19 +314,19 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
         if (currentCase === 'normal') {
             for (let i = 0; i < elementsWithText.length; i++) {
                 elementsWithText[i].style.textTransform = 'uppercase';
-                addCSSChange(`#${elementsWithText[i].id}`, 'text-transform', 'uppercase');
+                addCSSChange(`#${elementsWithText[i].classList[0]}`, 'text-transform', 'uppercase');
             }
             currentCase = 'upper';
         } else if (currentCase === 'upper') {
             for (let i = 0; i < elementsWithText.length; i++) {
                 elementsWithText[i].style.textTransform = 'lowercase';
-                addCSSChange(`#${elementsWithText[i].id}`, 'text-transform', 'lowercase');
+                addCSSChange(`#${elementsWithText[i].classList[0]}`, 'text-transform', 'lowercase');
             }
             currentCase = 'lower';
         } else if (currentCase === 'lower') {
             for (let i = 0; i < elementsWithText.length; i++) {
                 elementsWithText[i].style.textTransform = 'none';
-                addCSSChange(`#${elementsWithText[i].id}`, 'text-transform', 'none');
+                addCSSChange(`#${elementsWithText[i].classList[0]}`, 'text-transform', 'none');
             }
             currentCase = 'normal';
         }
@@ -354,6 +354,5 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             }
             styleElement.textContent = message.css;
         }
-        console.log(cssChanges);
     }
 });
