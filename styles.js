@@ -177,7 +177,7 @@ function addCSSChange(selector, property, value) {
 
 function generateCSS() {
     return cssChanges
-        .map(change => `${change.selector} { ${change.property}: ${change.value}; }`)
+        .map(change => `${change.selector} { ${change.property}: ${change.value} !important; }`)
         .join('\n');
 }
 
