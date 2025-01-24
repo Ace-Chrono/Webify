@@ -64,6 +64,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
             chrome.tabs.sendMessage(tabs[0].id, { action: 'zap'});
         });
     }
+    if (message.action === 'share') {
+        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, { action: 'share'});
+        });
+    }
     if (message.action === 'injectCSS') {
         chrome.storage.local.get('activeTabId', function(data) {
             const activeTabId = data.activeTabId;

@@ -346,6 +346,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
             document.removeEventListener('click', zapElement);
         }
     }
+    if (message.action === 'share') {
+        const cssContent = generateCSS();
+        const blob = new Blob([cssContent], { type: 'text/css' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'styles.css';
+        link.click();
+    }
     if (message.action === "injectCSS") {
         test = generateCSS();
         console.log(test);
