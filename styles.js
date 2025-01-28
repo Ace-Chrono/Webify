@@ -87,6 +87,94 @@ function invertColor(rgb) {
     return `rgb(${newR}, ${newG}, ${newB})`;
   }
 
+  function extractColorsFromStylesheets() {
+    const colorOrigins = [];
+
+    for (const sheet of document.styleSheets) {
+        try {
+            for (const rule of sheet.cssRules || []) {
+                if (rule.style) {
+                    const colorProperties = [
+                        { property: 'color', value: rule.style.color },
+                        { property: 'backgroundColor', value: rule.style.backgroundColor },
+                        { property: 'borderColor', value: rule.style.borderColor },
+                        { property: 'boxShadow', value: rule.style.boxShadow },
+                    ];
+                    colorProperties.forEach(({ value, property }) => {
+                        if (value && isValidColor(value)) {
+                            // Store the color and its origin (rule selector and property)
+                            colorOrigins.push({
+                                color: value,
+                                source: `Rule: ${rule.selectorText} (Property: ${property})`,
+                            });
+                        }
+                    });
+                }
+            }
+        } catch (err) {
+            console.warn(`Cannot access rules for stylesheet: ${sheet.href}`, err);
+        }
+    }
+
+    return colorOrigins;
+}
+
+function extractColorsFromDOM() {
+    const colorOrigins = [];
+
+    // List of elements to exclude
+    const excludedTags = ['script', 'link', 'meta', 'style', 'path', 'svg'];
+
+    document.querySelectorAll('*').forEach((el) => {
+        // Skip irrelevant elements
+        if (excludedTags.includes(el.tagName.toLowerCase())) {
+            return;
+        }
+
+        // Ensure the element is visible (not hidden by CSS)
+        const isVisible = getComputedStyle(el).visibility !== 'hidden' &&
+                          getComputedStyle(el).display !== 'none' &&
+                          el.offsetWidth > 0 && el.offsetHeight > 0;
+
+        // Only process visible elements
+        if (isVisible) {
+            const styles = getComputedStyle(el);
+            
+            // Filter out properties we don't need (like rgba(0, 0, 0, 0))
+            const colorProperties = [
+                { property: 'color', value: styles.color },
+                { property: 'backgroundColor', value: styles.backgroundColor },
+                { property: 'borderColor', value: styles.borderColor },
+                { property: 'boxShadow', value: styles.boxShadow },
+            ];
+
+            colorProperties.forEach(({ value, property }) => {
+                if (value && isValidColor(value)) {
+                    // Store the color and its origin (element's tag and property)
+                    colorOrigins.push({
+                        color: value,
+                        source: `Element: <${el.tagName.toLowerCase()}> (Property: ${property})`,
+                    });
+                }
+            });
+        }
+    });
+
+    return colorOrigins.filter(({ color }) => color !== 'rgba(0, 0, 0, 0)' && isValidColor(color));
+}
+
+// Helper function to validate if a string is a valid CSS color (excluding 'inherit', 'initial', 'none')
+function isValidColor(color) {
+    const excludedValues = ['inherit', 'initial', 'none'];
+    return !excludedValues.includes(color) && (color.startsWith("rgb") || color.startsWith("#"));
+}
+
+const stylesheetColors = extractColorsFromStylesheets();
+console.log('Colors from stylesheets:', stylesheetColors);
+
+const domColors = extractColorsFromDOM();
+console.log('Filtered colors from DOM:', domColors);
+
 function findElementsWithBackgroundColor(rootNode) {
     const elements = rootNode.querySelectorAll("*:not(script):not(svg):not(link)");
     const elementsWithBackground = [];
