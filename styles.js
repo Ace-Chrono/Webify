@@ -169,11 +169,109 @@ function isValidColor(color) {
     return !excludedValues.includes(color) && (color.startsWith("rgb") || color.startsWith("#"));
 }
 
+function extractColorsCategorized() {
+    const foregroundAreas = new Map();
+    const backgroundAreas = new Map();
+
+    document.querySelectorAll('*').forEach((el) => {
+        if (shouldSkipElement(el)) return; // Skip invisible or non-important elements
+
+        const styles = getComputedStyle(el);
+        const textColor = styles.color;
+        const bgColor = styles.backgroundColor;
+
+        // Calculate element area (exclude elements with zero size)
+        const area = el.offsetWidth * el.offsetHeight;
+        if (area <= 0) return;
+
+        // Add area to foreground color
+        if (isValidColor(textColor)) {
+            foregroundAreas.set(textColor, (foregroundAreas.get(textColor) || 0) + area);
+        }
+
+        // Add area to background color
+        if (isValidColor(bgColor)) {
+            backgroundAreas.set(bgColor, (backgroundAreas.get(bgColor) || 0) + area);
+        }
+    });
+
+    // Convert maps to sorted arrays based on area coverage
+    const foreground = [...foregroundAreas.entries()]
+        .sort((a, b) => b[1] - a[1]) // Sort by area (descending)
+        .map(entry => entry[0]);
+
+    const background = [...backgroundAreas.entries()]
+        .sort((a, b) => b[1] - a[1]) // Sort by area (descending)
+        .map(entry => entry[0]);
+
+    return { foreground, background };
+}
+
+function shouldSkipElement(el) {
+    const ignoredTags = ['SCRIPT', 'LINK', 'META', 'STYLE', 'SVG', 'PATH', 'NOSCRIPT'];
+    if (ignoredTags.includes(el.tagName)) return true; // Skip unnecessary elements
+    
+    const styles = getComputedStyle(el);
+    return styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0';
+}
+
+function rgbToArray(color) {
+    // Converts "rgb(255, 200, 100)" → [255, 200, 100]
+    return color.match(/\d+/g).map(Number);
+}
+
+function calculateColorShift(baseColor, newColor) {
+    const baseRGB = rgbToArray(baseColor);
+    const newRGB = rgbToArray(newColor);
+
+    return [
+        newRGB[0] - baseRGB[0], // Red shift
+        newRGB[1] - baseRGB[1], // Green shift
+        newRGB[2] - baseRGB[2]  // Blue shift
+    ];
+}
+
+function applyColorShift(originalColor, shift) {
+    const rgb = rgbToArray(originalColor);
+    
+    const newRGB = rgb.map((channel, i) => {
+        return Math.max(0, Math.min(255, channel + shift[i])); // Keep values in [0, 255] range
+    });
+
+    return `rgb(${newRGB[0]}, ${newRGB[1]}, ${newRGB[2]})`;
+}
+
+function updatePageColors(baseColor, newBaseColor) {
+    const shift = calculateColorShift(baseColor, newBaseColor);
+
+    document.querySelectorAll('*').forEach((el) => {
+        if (shouldSkipElement(el)) return;
+
+        const styles = getComputedStyle(el);
+        const bgColor = styles.backgroundColor;
+        const textColor = styles.color;
+
+        if (isValidColor(bgColor)) {
+            el.style.backgroundColor = applyColorShift(bgColor, shift);
+        }
+        if (isValidColor(textColor)) {
+            el.style.color = applyColorShift(textColor, shift);
+        }
+    });
+}
+
 const stylesheetColors = extractColorsFromStylesheets();
 console.log('Colors from stylesheets:', stylesheetColors);
 
 const domColors = extractColorsFromDOM();
 console.log('Filtered colors from DOM:', domColors);
+
+const categorizedColors = extractColorsCategorized();
+console.log("Categorized unique colors:", categorizedColors);
+
+const baseColor = categorizedColors.background[0];
+
+//updatePageColors(baseColor, "rgb(0, 128, 0)");
 
 function findElementsWithBackgroundColor(rootNode) {
     const elements = rootNode.querySelectorAll("*:not(script):not(svg):not(link)");
