@@ -20,7 +20,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const zapButton = document.getElementById("zap_button");
     const codeButton = document.getElementById("code_button");
     const shareButton = document.getElementById("share_button");
-  
+
+    let colors = null; 
+
+    chrome.storage.local.get('categorizedColors', function(data) {
+        if (data.categorizedColors) {
+            colors = data.categorizedColors
+            log.textContent = "Collected colors: " + colors;
+        }
+    });
+
     colorWheel.addEventListener("click", function(event) {
         log.textContent = "Color wheel clicked";
         const color = getColorAtPosition(event.offsetX, event.offsetY, colorWheel);
