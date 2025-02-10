@@ -93,6 +93,14 @@ function isValidColor(color) {
     return !excludedValues.includes(color) && (color.startsWith("rgb") || color.startsWith("#"));
 }
 
+function shouldSkipElement(el) {
+    const ignoredTags = ['SCRIPT', 'LINK', 'META', 'STYLE', 'SVG', 'PATH', 'NOSCRIPT', 'IMG'];
+    if (ignoredTags.includes(el.tagName)) return true; // Skip unnecessary elements
+    
+    const styles = getComputedStyle(el);
+    return styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0';
+}
+
 function extractColorsCategorized() {
     const foregroundAreas = new Map();
     const backgroundAreas = new Map();
@@ -131,17 +139,19 @@ function extractColorsCategorized() {
     return { foreground, background };
 }
 
-function shouldSkipElement(el) {
-    const ignoredTags = ['SCRIPT', 'LINK', 'META', 'STYLE', 'SVG', 'PATH', 'NOSCRIPT', 'IMG'];
-    if (ignoredTags.includes(el.tagName)) return true; // Skip unnecessary elements
-    
-    const styles = getComputedStyle(el);
-    return styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0';
-}
-
 function rgbToArray(color) {
     // Converts "rgb(255, 200, 100)" → [255, 200, 100]
     return color.match(/\d+/g).map(Number);
+}
+
+function colorsMatch(color1, color2) {
+    return normalizeColor(color1) === normalizeColor(color2);
+}
+
+function normalizeColor(color) {
+    const ctx = document.createElement('canvas').getContext('2d');
+    ctx.fillStyle = color;
+    return ctx.fillStyle;
 }
 
 function updatePageColors(baseColor, newBaseColor) {
@@ -160,31 +170,6 @@ function updatePageColors(baseColor, newBaseColor) {
         }
     });
 }
-
-function colorsMatch(color1, color2) {
-    return normalizeColor(color1) === normalizeColor(color2);
-}
-
-function normalizeColor(color) {
-    const ctx = document.createElement('canvas').getContext('2d');
-    ctx.fillStyle = color;
-    return ctx.fillStyle;
-}
-
-const categorizedColors = extractColorsCategorized();
-
-chrome.storage.local.set({ categorizedColors: categorizedColors }, function() {
-    console.log('Categorized colors saved to storage');
-});
-
-/*
-const categorizedColors = extractColorsCategorized();
-console.log("Categorized unique colors:", categorizedColors);
-
-const baseColor = categorizedColors.background[1];
-
-updatePageColors(baseColor, "rgb(0, 128, 0)");
-*/
 
 function findElementsWithBackgroundColor(rootNode) {
     const elements = rootNode.querySelectorAll("*:not(script):not(svg):not(link)");
@@ -239,24 +224,6 @@ function findElementsWithText(rootNode) {
 
     return elementsWithText;
 }
-
-let elementsWithText = []; 
-let elementsWithBackground = [];
-const log = document.getElementById("log");
-
-let currentContrast = 100;  // Default values
-let currentBrightness = 100;
-let currentSaturation = 100;
-
-let zoomedIn = false; 
-
-let currentCase = "normal"; 
-
-let zapMode = false; 
-let lastElement = null;
-const originalStyle = {};
-
-let cssChanges = [];
 
 function addCSSChange(selector, property, value) {
     // Check if the change already exists
@@ -319,7 +286,42 @@ function zapElement(event) {
     }
 }
 
-//Current run time: 0:04. 
+let elementsWithText = []; 
+let elementsWithBackground = [];
+const log = document.getElementById("log");
+let currentContrast = 100;  // Default values
+let currentBrightness = 100;
+let currentSaturation = 100;
+let zoomedIn = false; 
+let currentCase = "normal"; 
+let zapMode = false; 
+let lastElement = null;
+const originalStyle = {};
+let cssChanges = [];
+let categorizedColors = null; 
+
+window.onload = function () {
+    // Initialize categorizedColors
+    categorizedColors = extractColorsCategorized();
+    console.log(categorizedColors);
+    
+    // Update page colors with proper rgb syntax
+    updatePageColors(categorizedColors.background[0], "rgb(0, 138, 90)");
+    updatePageColors(categorizedColors.background[1], "rgb(0, 201, 130)");
+    updatePageColors(categorizedColors.background[2], "rgb(0, 231, 150)")
+};
+const observer = new MutationObserver(() => {
+    categorizedColors = extractColorsCategorized();
+    updatePageColors(categorizedColors.background[0], "rgb(0, 138, 90)")
+    updatePageColors(categorizedColors.background[1], "rgb(0, 201, 130)")
+    updatePageColors(categorizedColors.background[2], "rgb(0, 231, 150)")
+});
+observer.observe(document.body, {
+    childList: true,
+    subtree: true, 
+});
+setTimeout(() => observer.disconnect(), 30000); 
+
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { 
     if (message.action === 'storeTabId') {
         chrome.storage.local.set({ activeTabId: sender.tab.id });
