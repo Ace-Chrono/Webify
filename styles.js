@@ -298,29 +298,61 @@ let zapMode = false;
 let lastElement = null;
 const originalStyle = {};
 let cssChanges = [];
-let categorizedColors = null; 
 
-window.onload = function () {
-    // Initialize categorizedColors
-    categorizedColors = extractColorsCategorized();
-    console.log(categorizedColors);
-    
-    // Update page colors with proper rgb syntax
-    updatePageColors(categorizedColors.background[0], "rgb(0, 138, 90)");
-    updatePageColors(categorizedColors.background[1], "rgb(0, 201, 130)");
-    updatePageColors(categorizedColors.background[2], "rgb(0, 231, 150)")
-};
-const observer = new MutationObserver(() => {
-    categorizedColors = extractColorsCategorized();
+let categorizedColors = null; 
+let previousBackgroundColors = null; 
+let newColors = null;
+let newBackgroundColors = null;
+
+let lastChangeTime = null;
+let currentTime = null;
+let timeSinceLastChange = currentTime - lastChangeTime;
+let noChangeTimer = null;
+
+/*
+function handleNoChange() {
+    console.log("No change for 1.5 seconds");
     updatePageColors(categorizedColors.background[0], "rgb(0, 138, 90)")
     updatePageColors(categorizedColors.background[1], "rgb(0, 201, 130)")
     updatePageColors(categorizedColors.background[2], "rgb(0, 231, 150)")
-});
-observer.observe(document.body, {
-    childList: true,
-    subtree: true, 
-});
-setTimeout(() => observer.disconnect(), 30000); 
+}
+
+function resetNoChangeTimer() {
+    if (noChangeTimer) {
+        clearTimeout(noChangeTimer);
+    }
+    noChangeTimer = setTimeout(handleNoChange, 1500);
+}
+
+window.onload = function () {
+    categorizedColors = extractColorsCategorized();
+    previousBackgroundColors = [...categorizedColors.background.slice(0, 3)].sort();
+    console.log(categorizedColors);
+    lastChangeTime = performance.now();
+    resetNoChangeTimer();
+
+    const observer = new MutationObserver(() => {
+        newColors = extractColorsCategorized();
+        newBackgroundColors = [...newColors.background.slice(0, 3)].sort();
+        if (JSON.stringify(previousBackgroundColors) !== JSON.stringify(newBackgroundColors)) {
+            categorizedColors = newColors;
+            console.log(categorizedColors);
+            previousBackgroundColors = newBackgroundColors;
+            currentTime = performance.now();
+            timeSinceLastChange = currentTime - lastChangeTime;
+            console.log(`Time since last color update: ${timeSinceLastChange.toFixed(2)} ms`);
+            lastChangeTime = currentTime;
+
+            resetNoChangeTimer();
+        }
+    });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true, 
+    });
+    setTimeout(() => observer.disconnect(), 30000); 
+};
+*/
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { 
     if (message.action === 'storeTabId') {
