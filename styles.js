@@ -98,7 +98,12 @@ function shouldSkipElement(el) {
     if (ignoredTags.includes(el.tagName)) return true; // Skip unnecessary elements
     
     const styles = getComputedStyle(el);
-    return styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0';
+    return styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0' || isFullyTransparent(styles.color) || isFullyTransparent(styles.backgroundColor);
+}
+
+function isFullyTransparent(color) {
+    const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d\.]+)?\)/);
+    return rgbaMatch && rgbaMatch[4] === '0';
 }
 
 function extractColorsCategorized() {
@@ -299,22 +304,31 @@ let lastElement = null;
 const originalStyle = {};
 let cssChanges = [];
 
-let categorizedColors = null; 
+let previousCategorizedColors = null; 
 let previousBackgroundColors = null; 
-let newColors = null;
+let newCategorizedColors = null;
 let newBackgroundColors = null;
+
+let initialCategorizedColors = null; 
+let initialBackgroundColors = null; 
+
+let currentUrl = null; 
 
 let lastChangeTime = null;
 let currentTime = null;
 let timeSinceLastChange = currentTime - lastChangeTime;
 let noChangeTimer = null;
 
-/*
 function handleNoChange() {
     console.log("No change for 1.5 seconds");
-    updatePageColors(categorizedColors.background[0], "rgb(0, 138, 90)")
-    updatePageColors(categorizedColors.background[1], "rgb(0, 201, 130)")
-    updatePageColors(categorizedColors.background[2], "rgb(0, 231, 150)")
+    if (!initialCategorizedColors) {
+        initialCategorizedColors = previousCategorizedColors; 
+        initialBackgroundColors = [...initialCategorizedColors.background.slice(0, 3)].sort();
+        console.log("Initial colors: " + initialCategorizedColors);
+    }
+    updatePageColors(initialCategorizedColors.background[0], "rgb(0, 138, 90)")
+    updatePageColors(initialCategorizedColors.background[1], "rgb(0, 201, 130)")
+    updatePageColors(initialCategorizedColors.background[2], "rgb(0, 231, 150)")
 }
 
 function resetNoChangeTimer() {
@@ -324,19 +338,19 @@ function resetNoChangeTimer() {
     noChangeTimer = setTimeout(handleNoChange, 1500);
 }
 
+/*
 window.onload = function () {
-    categorizedColors = extractColorsCategorized();
-    previousBackgroundColors = [...categorizedColors.background.slice(0, 3)].sort();
-    console.log(categorizedColors);
+    previousCategorizedColors = extractColorsCategorized();
+    previousBackgroundColors = [...previousCategorizedColors.background.slice(0, 3)].sort();
+    currentUrl = window.location.href; 
     lastChangeTime = performance.now();
     resetNoChangeTimer();
 
-    const observer = new MutationObserver(() => {
-        newColors = extractColorsCategorized();
-        newBackgroundColors = [...newColors.background.slice(0, 3)].sort();
+    let observer = new MutationObserver(() => {
+        newCategorizedColors = extractColorsCategorized();
+        newBackgroundColors = [...newCategorizedColors.background.slice(0, 3)].sort();
         if (JSON.stringify(previousBackgroundColors) !== JSON.stringify(newBackgroundColors)) {
-            categorizedColors = newColors;
-            console.log(categorizedColors);
+            previousCategorizedColors = newCategorizedColors;
             previousBackgroundColors = newBackgroundColors;
             currentTime = performance.now();
             timeSinceLastChange = currentTime - lastChangeTime;
@@ -346,11 +360,32 @@ window.onload = function () {
             resetNoChangeTimer();
         }
     });
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true, 
-    });
-    setTimeout(() => observer.disconnect(), 30000); 
+
+    function startObserver() {
+        if (observer) observer.disconnect(); // Ensure the previous observer is removed
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    // Function to detect URL changes in SPAs and restart the observer
+    function checkUrlChange() {
+        if (window.location.href !== currentUrl) {
+            console.log("Page changed:", window.location.href);
+            currentUrl = window.location.href;
+            handleNoChange()
+            startObserver(); // Restart observer on new page
+        }
+    }
+
+    // Observe DOM changes
+    startObserver();
+
+    // Periodically check for URL changes in SPAs
+    setInterval(checkUrlChange, 1000);
+
+    // Listen for back/forward navigation
+    window.addEventListener("popstate", checkUrlChange);
+
+    setTimeout(() => observer.disconnect(), 30000);
 };
 */
 
