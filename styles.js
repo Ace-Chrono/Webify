@@ -114,7 +114,7 @@ function extractColorsCategorized() {
         if (shouldSkipElement(el)) return; // Skip invisible or non-important elements
 
         const styles = getComputedStyle(el);
-        const textColor = styles.color;
+        const fgColor = styles.color;
         const bgColor = styles.backgroundColor;
 
         // Calculate element area (exclude elements with zero size)
@@ -122,8 +122,8 @@ function extractColorsCategorized() {
         if (area <= 0) return;
 
         // Add area to foreground color
-        if (isValidColor(textColor)) {
-            foregroundAreas.set(textColor, (foregroundAreas.get(textColor) || 0) + area);
+        if (isValidColor(fgColor)) {
+            foregroundAreas.set(fgColor, (foregroundAreas.get(fgColor) || 0) + area);
         }
 
         // Add area to background color
@@ -317,25 +317,37 @@ let currentUrl = null;
 let lastChangeTime = null;
 let currentTime = null;
 let timeSinceLastChange = currentTime - lastChangeTime;
+
 let noChangeTimer = null;
+let initialRunCompleted = false;
 
 function handleNoChange() {
-    console.log("No change for 1.5 seconds");
     if (!initialCategorizedColors) {
         initialCategorizedColors = previousCategorizedColors; 
         initialBackgroundColors = [...initialCategorizedColors.background.slice(0, 3)].sort();
-        console.log("Initial colors: " + initialCategorizedColors);
+        console.log("Initial colors: " + initialCategorizedColors.background);
+        console.log("Initial colors: " + initialBackgroundColors);
     }
-    updatePageColors(initialCategorizedColors.background[0], "rgb(0, 138, 90)")
-    updatePageColors(initialCategorizedColors.background[1], "rgb(0, 201, 130)")
-    updatePageColors(initialCategorizedColors.background[2], "rgb(0, 231, 150)")
+    updatePageColors(initialBackgroundColors[0], "rgb(0, 138, 90)")
+    updatePageColors(initialBackgroundColors[1], "rgb(0, 201, 130)")
+    updatePageColors(initialBackgroundColors[2], "rgb(0, 231, 150)")
 }
 
 function resetNoChangeTimer() {
     if (noChangeTimer) {
         clearTimeout(noChangeTimer);
     }
-    noChangeTimer = setTimeout(handleNoChange, 1500);
+
+    if (!initialRunCompleted) {
+        // Initial 1.5-second delay
+        noChangeTimer = setTimeout(() => {
+            handleNoChange();
+            initialRunCompleted = true; // Mark initial run as done
+        }, 1500);
+    } else {
+        // Instant run after initial
+        handleNoChange();
+    }
 }
 
 /*
