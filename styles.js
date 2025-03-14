@@ -20,6 +20,8 @@ let currentTime = null;
 let timeSinceLastChange = currentTime - lastChangeTime;
 let noChangeTimer = null;
 let initialRunCompleted = false;
+let previousUserBackgroundColors = null; 
+let newUserBackgroundColors = null;
 
 function updatePageColors(baseColor, newBaseColor) { //Filters through all the elements in the active tab and assigns any elements with the baseColor to the newBaseColor
     document.querySelectorAll('*').forEach((el) => {
@@ -106,6 +108,35 @@ function colorsMatch(color1, color2) { //Checks if two colors match
 }
 
 //____________________________________________________________________________________________________
+
+function darkenColor(color, amount) {
+    let [r, g, b] = hexToRgb(color);
+    r = Math.max(0, Math.round(r * ((100-amount)/100)));
+    g = Math.max(0, Math.round(g * ((100-amount)/100)));
+    b = Math.max(0, Math.round(b * ((100-amount)/100)));
+
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
+//darkenColor Helper Functions
+//____________________________________________________________________________________________________
+
+function hexToRgb(hex) {
+    // Remove the '#' if it exists
+    hex = hex.replace(/^#/, '');
+
+    // Convert shorthand hex to full form (e.g., #0f0 → #00ff00)
+    if (hex.length === 3) {
+        hex = hex.split('').map(char => char + char).join('');
+    }
+
+    // Extract the RGB values
+    let r = parseInt(hex.substring(0, 2), 16);
+    let g = parseInt(hex.substring(2, 4), 16);
+    let b = parseInt(hex.substring(4, 6), 16);
+
+    return [r, g, b];
+}
 
 /* Deprecated, method will be replaced with updatePageColors
 function findElementsWithBackgroundColor(rootNode) {
@@ -348,12 +379,13 @@ function handleNoChange() {
     if (!initialCategorizedColors) {
         initialCategorizedColors = previousCategorizedColors; 
         initialBackgroundColors = [...initialCategorizedColors.background.slice(0, 3)].sort();
+        previousUserBackgroundColors = initialBackgroundColors;
         console.log("Initial colors: " + initialCategorizedColors.background);
         console.log("Initial colors: " + initialBackgroundColors);
     }
-    updatePageColors(initialBackgroundColors[0], "rgb(0, 138, 90)")
-    updatePageColors(initialBackgroundColors[1], "rgb(0, 201, 130)")
-    updatePageColors(initialBackgroundColors[2], "rgb(0, 231, 150)")
+    updatePageColors(initialBackgroundColors[0], previousUserBackgroundColors[0]);
+    updatePageColors(initialBackgroundColors[1], previousUserBackgroundColors[1]);
+    updatePageColors(initialBackgroundColors[2], previousUserBackgroundColors[2]);
 }
 
 function resetNoChangeTimer() {
@@ -381,6 +413,18 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     }
 
     if (message.action === 'changeColor') { //Changes the background color of the tab
+        newUserBackgroundColors = [darkenColor(message.color, 40), darkenColor(message.color, 20), darkenColor(message.color, 0)];
+
+        updatePageColors(previousUserBackgroundColors[0], newUserBackgroundColors[0]);
+        updatePageColors(previousUserBackgroundColors[1], newUserBackgroundColors[1]);
+        updatePageColors(previousUserBackgroundColors[2], newUserBackgroundColors[2]);
+
+        console.log(previousBackgroundColors);
+
+        previousBackgroundColors = newUserBackgroundColors; 
+
+        console.log(previousBackgroundColors);
+
         /* Deprecated, will have to change to use updatePageColor
         if (elementsWithBackground.length == 0){
             elementsWithBackground = findElementsWithBackgroundColor(document);
@@ -394,6 +438,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     }
 
     if (message.action === 'invertColor') { //Inverts the brightness of the background color of the tab
+        //updatePageColors(previousUserBackgroundColors[0], newUserBackgroundColors[0]);
+        //updatePageColors(previousUserBackgroundColors[1], newUserBackgroundColors[1]);
+        //updatePageColors(previousUserBackgroundColors[2], newUserBackgroundColors[2]);
+
         /* Deprecated, will have to change to use updatePageColor
         if (elementsWithBackground.length == 0){
             elementsWithBackground = findElementsWithBackgroundColor(document);
@@ -407,6 +455,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     }
 
     if (message.action === 'resetColor') { //Resets and color changes made by the user
+        updatePageColors(previousBackgroundColors[0], initialBackgroundColors[0]);
+        updatePageColors(previousBackgroundColors[1], initialBackgroundColors[1]);
+        updatePageColors(previousBackgroundColors[2], initialBackgroundColors[2]);
+
         /* Deprecated, will have to change to use updatePageColor
         if (elementsWithBackground.length == 0){
             elementsWithBackground = findElementsWithBackgroundColor(document);
