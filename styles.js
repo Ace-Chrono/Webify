@@ -419,11 +419,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         updatePageColors(previousUserBackgroundColors[1], newUserBackgroundColors[1]);
         updatePageColors(previousUserBackgroundColors[2], newUserBackgroundColors[2]);
 
-        console.log(previousBackgroundColors);
-
-        previousBackgroundColors = newUserBackgroundColors; 
-
-        console.log(previousBackgroundColors);
+        previousUserBackgroundColors = newUserBackgroundColors; 
 
         /* Deprecated, will have to change to use updatePageColor
         if (elementsWithBackground.length == 0){
@@ -455,9 +451,11 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     }
 
     if (message.action === 'resetColor') { //Resets and color changes made by the user
-        updatePageColors(previousBackgroundColors[0], initialBackgroundColors[0]);
-        updatePageColors(previousBackgroundColors[1], initialBackgroundColors[1]);
-        updatePageColors(previousBackgroundColors[2], initialBackgroundColors[2]);
+        updatePageColors(previousUserBackgroundColors[0], initialBackgroundColors[0]);
+        updatePageColors(previousUserBackgroundColors[1], initialBackgroundColors[1]);
+        updatePageColors(previousUserBackgroundColors[2], initialBackgroundColors[2]);
+
+        previousUserBackgroundColors = initialBackgroundColors;
 
         /* Deprecated, will have to change to use updatePageColor
         if (elementsWithBackground.length == 0){
