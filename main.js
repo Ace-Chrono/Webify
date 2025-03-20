@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     advancedButton.addEventListener("click", function(event) {
         log.textContent = "Advanced button clicked";
-        window.open('advanced.html', 'AdvancedOptions', 'width=600,height=400');
+        window.open('advanced.html', 'AdvancedOptions', 'width=700,height=200');
     });
 
     sizeButton.addEventListener("click", function(event) {

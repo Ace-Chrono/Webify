@@ -138,40 +138,7 @@ function hexToRgb(hex) {
     return [r, g, b];
 }
 
-/* Deprecated, method will be replaced with updatePageColors
-function findElementsWithBackgroundColor(rootNode) {
-    const elements = rootNode.querySelectorAll("*:not(script):not(svg):not(link)");
-    const elementsWithBackground = [];
-    const relevantKeywords = ["background", "content"];
-
-    elements.forEach(element => {
-        const computedStyle = window.getComputedStyle(element);
-        const properties = [];
-
-        for (let i = 0; i < computedStyle.length; i++) {
-            const propertyName = computedStyle[i];
-            const propertyValue = computedStyle.getPropertyValue(propertyName);
-
-            if (relevantKeywords.some(keyword => propertyName.includes(keyword)) && (propertyValue.includes("rgb") || propertyValue.includes("#"))) {
-                element.style.setProperty(propertyName, 'unset', 'important');
-                const unsetValue = computedStyle.getPropertyValue(propertyName);
-
-                element.style.removeProperty(propertyName); // Remove the unset property
-
-                if (unsetValue !== propertyValue) {
-                    properties.push([propertyName, propertyValue]);
-                }
-            }
-        }
-
-        if (properties.length > 0) {
-            elementsWithBackground.push({ element, properties });
-        }
-    });
-
-    return elementsWithBackground;
-}
-*/
+//____________________________________________________________________________________________________
 
 function invertColor(rgb) { //Inverses the brightness of the given RGB color
     // Extract the R, G, and B components from the RGB string
@@ -420,34 +387,16 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         updatePageColors(previousUserBackgroundColors[2], newUserBackgroundColors[2]);
 
         previousUserBackgroundColors = newUserBackgroundColors; 
-
-        /* Deprecated, will have to change to use updatePageColor
-        if (elementsWithBackground.length == 0){
-            elementsWithBackground = findElementsWithBackgroundColor(document);
-        }
-        for (let i = 0; i < elementsWithBackground.length; i++) {
-            for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
-                elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], message.color);
-            }
-        }
-        */
     }
 
     if (message.action === 'invertColor') { //Inverts the brightness of the background color of the tab
-        //updatePageColors(previousUserBackgroundColors[0], newUserBackgroundColors[0]);
-        //updatePageColors(previousUserBackgroundColors[1], newUserBackgroundColors[1]);
-        //updatePageColors(previousUserBackgroundColors[2], newUserBackgroundColors[2]);
+        newUserBackgroundColors = [invertColor(previousUserBackgroundColors[0]), invertColor(previousUserBackgroundColors[1]), invertColor(previousUserBackgroundColors[2])];
 
-        /* Deprecated, will have to change to use updatePageColor
-        if (elementsWithBackground.length == 0){
-            elementsWithBackground = findElementsWithBackgroundColor(document);
-        }
-        for (let i = 0; i < elementsWithBackground.length; i++) {
-            for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
-                elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], invertColor(getComputedStyle(elementsWithBackground[i].element).getPropertyValue(elementsWithBackground[i].properties[j][0])));
-            }
-        }
-        */
+        updatePageColors(previousUserBackgroundColors[0], newUserBackgroundColors[0]);
+        updatePageColors(previousUserBackgroundColors[1], newUserBackgroundColors[1]);
+        updatePageColors(previousUserBackgroundColors[2], newUserBackgroundColors[2]);
+
+        previousUserBackgroundColors = newUserBackgroundColors; 
     }
 
     if (message.action === 'resetColor') { //Resets and color changes made by the user
@@ -456,17 +405,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         updatePageColors(previousUserBackgroundColors[2], initialBackgroundColors[2]);
 
         previousUserBackgroundColors = initialBackgroundColors;
-
-        /* Deprecated, will have to change to use updatePageColor
-        if (elementsWithBackground.length == 0){
-            elementsWithBackground = findElementsWithBackgroundColor(document);
-        }
-        for (let i = 0; i < elementsWithBackground.length; i++) {
-            for (let j = 0; j < elementsWithBackground[i].properties.length; j++) {
-                elementsWithBackground[i].element.style.setProperty(elementsWithBackground[i].properties[j][0], elementsWithBackground[i].properties[j][1]);
-            }
-        }
-        */
     }
 
     if (message.action === 'changeFont') { //Changes the font of all the text in the tab
@@ -481,7 +419,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     if (message.action === 'changeContrast') { //Changes the contrast of the tab
         console.log("Contrast: " + message.amount)
         currentContrast = message.amount;
-        document.body.style.filter = `
+        document.documentElement.style.filter = `
         contrast(${currentContrast}%)
         brightness(${currentBrightness}%)
         saturate(${currentSaturation}%)
@@ -491,7 +429,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     if (message.action === 'changeBrightness') { //Changes the brightness of the tab
         console.log("Brightness: " + message.amount)
         currentBrightness = message.amount;
-        document.body.style.filter = `
+        document.documentElement.style.filter = `
         contrast(${currentContrast}%)
         brightness(${currentBrightness}%)
         saturate(${currentSaturation}%)
@@ -501,7 +439,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     if (message.action === 'changeSaturation') { //Changes the saturation of the tab
         console.log("Saturation: " + message.amount)
         currentSaturation = message.amount;
-        document.body.style.filter = `
+        document.documentElement.style.filter = `
         contrast(${currentContrast}%)
         brightness(${currentBrightness}%)
         saturate(${currentSaturation}%)
