@@ -1,3 +1,22 @@
+chrome.tabs.onCreated.addListener((tab) => {
+    chrome.storage.local.set({
+        contrast: 100,
+        brightness: 100,
+        saturation: 100
+    });
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === "complete" && tab.active) {
+        // Reset values in storage when a new page loads
+        chrome.storage.local.set({
+            contrast: 100,
+            brightness: 100,
+            saturation: 100
+        });
+    }
+});
+
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { //Sends the message to the active tab
     if (message.action === 'changeColor') {
         chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
@@ -9,9 +28,9 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
             chrome.tabs.sendMessage(tabs[0].id, { action: 'invertColor'});
         });
     }
-    if (message.action === 'resetColor') {
+    if (message.action === 'reset') {
         chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-            chrome.tabs.sendMessage(tabs[0].id, { action: 'resetColor'});
+            chrome.tabs.sendMessage(tabs[0].id, { action: 'reset'});
         });
     }
     if (message.action === 'changeFont') {

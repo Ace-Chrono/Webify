@@ -4,18 +4,23 @@ document.addEventListener("DOMContentLoaded", function() {
     const saturationBar = document.getElementById("saturation_slider");
 
     function loadSettings() {
-        contrastBar.value = localStorage.getItem("contrast") || 100;
-        brightnessBar.value = localStorage.getItem("brightness") || 100;
-        saturationBar.value = localStorage.getItem("saturation") || 100;
+        chrome.storage.local.get(["contrast", "brightness", "saturation"], function (data) {
+            contrastBar.value = data.contrast || 100;
+            brightnessBar.value = data.brightness || 100;
+            saturationBar.value = data.saturation || 100;
+        });
     }
 
     function saveSettings() {
-        localStorage.setItem("contrast", contrastBar.value);
-        localStorage.setItem("brightness", brightnessBar.value);
-        localStorage.setItem("saturation", saturationBar.value);
+        chrome.storage.local.set({
+            contrast: contrastBar.value,
+            brightness: brightnessBar.value,
+            saturation: saturationBar.value
+        });
     }
 
     loadSettings();
+    
     contrastBar.addEventListener("input", saveSettings);
     brightnessBar.addEventListener("input", saveSettings);
     saturationBar.addEventListener("input", saveSettings);

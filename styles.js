@@ -1,28 +1,3 @@
-let elementsWithText = []; 
-let elementsWithBackground = [];
-let currentContrast = 100;
-let currentBrightness = 100;
-let currentSaturation = 100;
-let zoomedIn = false; 
-let currentCase = "normal"; 
-let zapMode = false; 
-let lastElement = null;
-const originalStyle = {};
-let previousCategorizedColors = null; 
-let previousBackgroundColors = null; 
-let newCategorizedColors = null;
-let newBackgroundColors = null;
-let initialCategorizedColors = null; 
-let initialBackgroundColors = null; 
-let currentUrl = null; 
-let lastChangeTime = null;
-let currentTime = null;
-let timeSinceLastChange = currentTime - lastChangeTime;
-let noChangeTimer = null;
-let initialRunCompleted = false;
-let previousUserBackgroundColors = null; 
-let newUserBackgroundColors = null;
-
 function updatePageColors(baseColor, newBaseColor) { //Filters through all the elements in the active tab and assigns any elements with the baseColor to the newBaseColor
     document.querySelectorAll('*').forEach((el) => {
         if (shouldSkipElement(el)) return;
@@ -42,24 +17,6 @@ function updatePageColors(baseColor, newBaseColor) { //Filters through all the e
 
 //updatePageColors Helper Functions
 //____________________________________________________________________________________________________
-
-function isValidColor(color) { //Checks if the color is new and rgb
-    const excludedValues = ['inherit', 'initial', 'none'];
-    return !excludedValues.includes(color) && (color.startsWith("rgb") || color.startsWith("#"));
-}
-
-function shouldSkipElement(el) { //Skips elements that dont display color and or are hidden.
-    const ignoredTags = ['SCRIPT', 'LINK', 'META', 'STYLE', 'SVG', 'PATH', 'NOSCRIPT', 'IMG'];
-    if (ignoredTags.includes(el.tagName)) return true;
-    
-    const styles = getComputedStyle(el);
-    return styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0' || isFullyTransparent(styles.color) || isFullyTransparent(styles.backgroundColor);
-}
-
-function isFullyTransparent(color) { //Checks if a color is transparent at all
-    const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d\.]+)?\)/);
-    return rgbaMatch && rgbaMatch[4] !== undefined && parseFloat(rgbaMatch[4]) < 1;
-}
 
 function extractColorsCategorized() { //Extracts the main colors in the page and sorts them into either foreground or background colors. 
     const foregroundAreas = new Map();
@@ -97,18 +54,6 @@ function extractColorsCategorized() { //Extracts the main colors in the page and
     return { foreground, background };
 }
 
-function normalizeColor(color) { //Changes any valid CSS color string like "red" and "#ff0000" to an RGB Format.
-    const ctx = document.createElement('canvas').getContext('2d');
-    ctx.fillStyle = color;
-    return ctx.fillStyle;
-}
-
-function colorsMatch(color1, color2) { //Checks if two colors match
-    return normalizeColor(color1) === normalizeColor(color2);
-}
-
-//____________________________________________________________________________________________________
-
 function darkenColor(color, amount) {
     let [r, g, b] = hexToRgb(color);
     r = Math.max(0, Math.round(r * ((100-amount)/100)));
@@ -118,8 +63,33 @@ function darkenColor(color, amount) {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-//darkenColor Helper Functions
-//____________________________________________________________________________________________________
+function isValidColor(color) { //Checks if the color is new and rgb
+    const excludedValues = ['inherit', 'initial', 'none'];
+    return !excludedValues.includes(color) && (color.startsWith("rgb") || color.startsWith("#"));
+}
+
+function shouldSkipElement(el) { //Skips elements that dont display color and or are hidden.
+    const ignoredTags = ['SCRIPT', 'LINK', 'META', 'STYLE', 'SVG', 'PATH', 'NOSCRIPT', 'IMG'];
+    if (ignoredTags.includes(el.tagName)) return true;
+    
+    const styles = getComputedStyle(el);
+    return styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0' || isFullyTransparent(styles.color) || isFullyTransparent(styles.backgroundColor);
+}
+
+function isFullyTransparent(color) { //Checks if a color is transparent at all
+    const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d\.]+)?\)/);
+    return rgbaMatch && rgbaMatch[4] !== undefined && parseFloat(rgbaMatch[4]) < 1;
+}
+
+function colorsMatch(color1, color2) { //Checks if two colors match
+    return normalizeColor(color1) === normalizeColor(color2);
+}
+
+function normalizeColor(color) { //Changes any valid CSS color string like "red" and "#ff0000" to an RGB Format.
+    const ctx = document.createElement('canvas').getContext('2d');
+    ctx.fillStyle = color;
+    return ctx.fillStyle;
+}
 
 function hexToRgb(hex) {
     // Remove the '#' if it exists
@@ -237,6 +207,10 @@ function findElementsWithText(rootNode) { //Finds all the elements in the tab wi
     return elementsWithText;
 }
 
+let zapMode = false; 
+let lastElement = null;
+const originalStyle = {};
+
 function zapElement(event) { //Removes an element from the tab
     if (zapMode) {
         event.target.style.display = 'none';
@@ -290,6 +264,17 @@ function generateCSS() {
 //Main code section
 //____________________________________________________________________________________________________
 
+let previousCategorizedColors = null; 
+let previousBackgroundColors = null; 
+let newCategorizedColors = null;
+let newBackgroundColors = null;
+let initialCategorizedColors = null; 
+let initialBackgroundColors = null; 
+let currentUrl = null; 
+let lastChangeTime = null;
+let currentTime = null;
+let timeSinceLastChange = currentTime - lastChangeTime;
+
 window.onload = function () { //Checks if there are any user settings and automatically applies it when the page loads
     previousCategorizedColors = extractColorsCategorized();
     previousBackgroundColors = [...previousCategorizedColors.background.slice(0, 3)].sort();
@@ -342,6 +327,8 @@ window.onload = function () { //Checks if there are any user settings and automa
 //Helper Functions for Initial Page Load
 //____________________________________________________________________________________________________
 
+let previousUserBackgroundColors = null; 
+
 function handleNoChange() {
     if (!initialCategorizedColors) {
         initialCategorizedColors = previousCategorizedColors; 
@@ -354,6 +341,9 @@ function handleNoChange() {
     updatePageColors(initialBackgroundColors[1], previousUserBackgroundColors[1]);
     updatePageColors(initialBackgroundColors[2], previousUserBackgroundColors[2]);
 }
+
+let noChangeTimer = null;
+let initialRunCompleted = false;
 
 function resetNoChangeTimer() {
     if (noChangeTimer) {
@@ -374,11 +364,18 @@ function resetNoChangeTimer() {
 
 //____________________________________________________________________________________________________
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { //Checks for any edits to the page made by the user and applies them
-    if (message.action === 'storeTabId') { //Gets the Id of the current tab and stores it in the local chrome storage
-        chrome.storage.local.set({ activeTabId: sender.tab.id });
-    }
+let newUserBackgroundColors = null;
+let elementsWithText = [];
+let currentContrast = 100;
+let currentBrightness = 100;
+let currentSaturation = 100;
+let zoomedIn = false; 
+let currentCase = "normal"; 
 
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { //Checks for any edits to the page made by the user and applies them
+    /*if (message.action === 'storeTabId') { //Gets the Id of the current tab and stores it in the local chrome storage
+        chrome.storage.local.set({ activeTabId: sender.tab.id });
+    }*/
     if (message.action === 'changeColor') { //Changes the background color of the tab
         newUserBackgroundColors = [darkenColor(message.color, 40), darkenColor(message.color, 20), darkenColor(message.color, 0)];
 
@@ -399,7 +396,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         previousUserBackgroundColors = newUserBackgroundColors; 
     }
 
-    if (message.action === 'resetColor') { //Resets and color changes made by the user
+    if (message.action === 'reset') { //Resets and color changes made by the user
         updatePageColors(previousUserBackgroundColors[0], initialBackgroundColors[0]);
         updatePageColors(previousUserBackgroundColors[1], initialBackgroundColors[1]);
         updatePageColors(previousUserBackgroundColors[2], initialBackgroundColors[2]);

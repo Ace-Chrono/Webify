@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     resetButton.addEventListener("click", function(event) {
         log.textContent = "Reset button clicked";
-        chrome.runtime.sendMessage({ action: 'resetColor'});
+        chrome.runtime.sendMessage({ action: 'reset'});
     });
 
     for (let i = 0; i < fonts.length; i++) {
