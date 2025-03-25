@@ -207,6 +207,28 @@ function findElementsWithText(rootNode) { //Finds all the elements in the tab wi
     return elementsWithText;
 }
 
+function getInitialFonts(rootNode) { //Finds all the elements in the tab with text
+    // Get all elements in the document
+    const allElements = rootNode.querySelectorAll('*');
+    const originalFonts = [];
+
+    // Loop through each element
+    allElements.forEach(element => {
+        // Check if the element has any text nodes that are not empty or just whitespace
+        const hasText = Array.from(element.childNodes).some(node => {
+            return node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '';
+        });
+
+        // If the element has text, add it to the results array
+        if (hasText) {
+            originalFonts.push(element.style.fontFamily);
+        }
+    });
+
+    return originalFonts;
+}
+
+
 let zapMode = false; 
 let lastElement = null;
 const originalStyle = {};
@@ -366,6 +388,7 @@ function resetNoChangeTimer() {
 
 let newUserBackgroundColors = null;
 let elementsWithText = [];
+let originalFonts = []; 
 let currentContrast = 100;
 let currentBrightness = 100;
 let currentSaturation = 100;
@@ -402,11 +425,22 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         updatePageColors(previousUserBackgroundColors[2], initialBackgroundColors[2]);
 
         previousUserBackgroundColors = initialBackgroundColors;
+
+        for (let i = 0; i < elementsWithText.length; i++) {
+            elementsWithText[i].style.fontFamily = originalFonts[i];
+        }
+
+        document.documentElement.style.filter = `
+        contrast(${100}%)
+        brightness(${100}%)
+        saturate(${100}%)
+        `;
     }
 
     if (message.action === 'changeFont') { //Changes the font of all the text in the tab
         if (elementsWithText.length == 0){
             elementsWithText = findElementsWithText(document);
+            originalFonts = getInitialFonts(document);
         }
         for (let i = 0; i < elementsWithText.length; i++) {
             elementsWithText[i].style.fontFamily = message.font;
