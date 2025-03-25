@@ -232,14 +232,17 @@ function getInitialFonts(rootNode) { //Finds all the elements in the tab with te
 let zapMode = false; 
 let lastElement = null;
 const originalStyle = {};
+let zappedElements = []; 
 
 function zapElement(event) { //Removes an element from the tab
     if (zapMode) {
-        event.target.style.display = 'none';
-        zapMode = false; // Stop zapping after one element
+        removeHighlight(event);
         document.removeEventListener('mouseover', highlightElement);
         document.removeEventListener('mouseout', removeHighlight);
         document.removeEventListener('click', zapElement);
+        zapMode = false; // Stop zapping after one element
+        zappedElements.push({ element: event.target, displayStyle: event.target.style.display});
+        event.target.style.display = 'none';
     }
 }
 
@@ -435,6 +438,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         brightness(${100}%)
         saturate(${100}%)
         `;
+
+        for (let i = 0; zappedElements.length; i++) {
+            zappedElements[i].element.style.display = zappedElements[i].displayStyle;
+        }
     }
 
     if (message.action === 'changeFont') { //Changes the font of all the text in the tab
