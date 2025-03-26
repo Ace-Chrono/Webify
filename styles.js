@@ -442,6 +442,18 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         for (let i = 0; zappedElements.length; i++) {
             zappedElements[i].element.style.display = zappedElements[i].displayStyle;
         }
+
+        if (zoomedIn == true){
+            document.body.style.zoom = 100 + '%';
+            zoomedIn = false;
+        }
+
+        if (currentCase !== 'normal') {
+            for (let i = 0; i < elementsWithText.length; i++) {
+                elementsWithText[i].style.textTransform = 'none';
+            }
+            currentCase = 'normal';
+        }
     }
 
     if (message.action === 'changeFont') { //Changes the font of all the text in the tab
