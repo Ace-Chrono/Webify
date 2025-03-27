@@ -433,10 +433,13 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
             elementsWithText[i].style.fontFamily = originalFonts[i];
         }
 
+        currentContrast = 100;
+        currentBrightness = 100;
+        currentSaturation = 100;
         document.documentElement.style.filter = `
-        contrast(${100}%)
-        brightness(${100}%)
-        saturate(${100}%)
+        contrast(${currentContrast}%)
+        brightness(${currentBrightness}%)
+        saturate(${currentSaturation}%)
         `;
 
         for (let i = 0; zappedElements.length; i++) {
@@ -545,14 +548,31 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     }
 
     if (message.action === 'share') { //Saves changes by the user to create a website profile
-        /*Deprecated, must actually create the functionality
-        const cssContent = generateCSS();
-        const blob = new Blob([cssContent], { type: 'text/css' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'styles.css';
-        link.click();
+        /*
+        Variables to consider: previousUserBackgroundColors, elementsWithText, originalFonts, currentContrast, currentBrightness, currentSaturation, zoomedIn, currentCase
+        Create a json file for all of these settings 
         */
+
+        const settings = {
+            previousUserBackgroundColors,
+            currentContrast,
+            currentBrightness,
+            currentSaturation,
+            originalFonts, //Should be the new fonts not original
+            zoomedIn,
+            currentCase,
+            zappedElements //not saving the elements correctly, also should just get the elements no need for the original display
+        }
+
+        console.log(settings);
+
+        const blob = new Blob([JSON.stringify(settings, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = 'settings.json';
+        link.click();
     }
 
     if (message.action === "injectCSS") { //Injects any css code written by the user into the tab
