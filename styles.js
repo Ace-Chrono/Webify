@@ -1,16 +1,16 @@
 function updatePageColors(baseColor, newBaseColor) { //Filters through all the elements in the active tab and assigns any elements with the baseColor to the newBaseColor
-    document.querySelectorAll('*').forEach((el) => {
-        if (shouldSkipElement(el)) return;
+    document.querySelectorAll('*').forEach((element) => {
+        if (shouldSkipElement(element)) return;
 
-        const styles = getComputedStyle(el);
-        const bgColor = styles.backgroundColor;
+        const styles = getComputedStyle(element);
+        const backgroundColor = styles.backgroundColor;
         const textColor = styles.color;
 
-        if (isValidColor(bgColor) && colorsMatch(bgColor, baseColor)) {
-            el.style.backgroundColor = newBaseColor;
+        if (isValidColor(backgroundColor) && colorsMatch(backgroundColor, baseColor)) {
+            element.style.backgroundColor = newBaseColor;
         }
         if (isValidColor(textColor) && colorsMatch(textColor, baseColor)) {
-            el.style.color = newBaseColor;
+            element.style.color = newBaseColor;
         }
     });
 }
@@ -22,23 +22,23 @@ function extractColorsCategorized() { //Extracts the main colors in the page and
     const foregroundAreas = new Map();
     const backgroundAreas = new Map();
 
-    document.querySelectorAll('*').forEach((el) => {
-        if (shouldSkipElement(el)) return;
+    document.querySelectorAll('*').forEach((element) => {
+        if (shouldSkipElement(element)) return;
 
-        const styles = getComputedStyle(el);
-        const fgColor = styles.color;
-        const bgColor = styles.backgroundColor;
+        const styles = getComputedStyle(element);
+        const foregroundColor = styles.color;
+        const backgroundColor = styles.backgroundColor;
 
         // Calculate element area (exclude elements with zero size)
-        const area = el.offsetWidth * el.offsetHeight;
+        const area = element.offsetWidth * element.offsetHeight;
         if (area <= 0) return;
 
         // Creates mappings with the color and the total area of all elements with the color
-        if (isValidColor(fgColor)) {
-            foregroundAreas.set(fgColor, (foregroundAreas.get(fgColor) || 0) + area);
+        if (isValidColor(foregroundColor)) {
+            foregroundAreas.set(foregroundColor, (foregroundAreas.get(foregroundColor) || 0) + area);
         }
-        if (isValidColor(bgColor)) {
-            backgroundAreas.set(bgColor, (backgroundAreas.get(bgColor) || 0) + area);
+        if (isValidColor(backgroundColor)) {
+            backgroundAreas.set(backgroundColor, (backgroundAreas.get(backgroundColor) || 0) + area);
         }
     });
 
@@ -68,11 +68,11 @@ function isValidColor(color) { //Checks if the color is new and rgb
     return !excludedValues.includes(color) && (color.startsWith("rgb") || color.startsWith("#"));
 }
 
-function shouldSkipElement(el) { //Skips elements that dont display color and or are hidden.
+function shouldSkipElement(element) { //Skips elements that dont display color and or are hidden.
     const ignoredTags = ['SCRIPT', 'LINK', 'META', 'STYLE', 'SVG', 'PATH', 'NOSCRIPT', 'IMG'];
-    if (ignoredTags.includes(el.tagName)) return true;
+    if (ignoredTags.includes(element.tagName)) return true;
     
-    const styles = getComputedStyle(el);
+    const styles = getComputedStyle(element);
     return styles.display === 'none' || styles.visibility === 'hidden' || styles.opacity === '0' || isFullyTransparent(styles.color) || isFullyTransparent(styles.backgroundColor);
 }
 
@@ -86,9 +86,9 @@ function colorsMatch(color1, color2) { //Checks if two colors match
 }
 
 function normalizeColor(color) { //Changes any valid CSS color string like "red" and "#ff0000" to an RGB Format.
-    const ctx = document.createElement('canvas').getContext('2d');
-    ctx.fillStyle = color;
-    return ctx.fillStyle;
+    const context = document.createElement('canvas').getContext('2d');
+    context.fillStyle = color;
+    return context.fillStyle;
 }
 
 function hexToRgb(hex) {
@@ -230,8 +230,8 @@ function getInitialFonts(rootNode) { //Finds all the elements in the tab with te
 
 
 let zapMode = false; 
-let lastElement = null;
-const originalStyle = {};
+let lastHighlightedElement = null;
+const originalHighlightedElementStyle = {};
 let zappedElements = []; 
 let zappedElementsID = []; 
 
@@ -262,29 +262,29 @@ function zapElement(event) { //Removes an element from the tab
 function highlightElement(event) { //Creates a red highlight around the element being hovered over by the cursor
     if (zapMode) {
         // Remove highlight from the last element
-        if (lastElement) {
-            lastElement.style.outline = originalStyle.outline;
-            lastElement.style.cursor = originalStyle.cursor;
+        if (lastHighlightedElement) {
+            lastHighlightedElement.style.outline = originalHighlightedElementStyle.outline;
+            lastHighlightedElement.style.cursor = originalHighlightedElementStyle.cursor;
         }
 
         // Save the original style of the current element
-        originalStyle.outline = event.target.style.outline;
-        originalStyle.cursor = event.target.style.cursor;
+        originalHighlightedElementStyle.outline = event.target.style.outline;
+        originalHighlightedElementStyle.cursor = event.target.style.cursor;
 
         // Apply highlight style
         event.target.style.outline = '2px solid red';
         event.target.style.cursor = 'pointer';
 
-        lastElement = event.target;
+        lastHighlightedElement = event.target;
     }
 }
 
 function removeHighlight(event) { //Removes the highlighting if you are not in the Zap mode
-    if (zapMode && lastElement) {
+    if (zapMode && lastHighlightedElement) {
         // Restore the original style when the mouse leaves the element
-        lastElement.style.outline = originalStyle.outline;
-        lastElement.style.cursor = originalStyle.cursor;
-        lastElement = null;
+        lastHighlightedElement.style.outline = originalHighlightedElementStyle.outline;
+        lastHighlightedElement.style.cursor = originalHighlightedElementStyle.cursor;
+        lastHighlightedElement = null;
     }
 }
 
@@ -299,8 +299,8 @@ function generateCSS() {
 //Main code section
 //____________________________________________________________________________________________________
 
-let previousCategorizedColors = null; 
-let previousBackgroundColors = null; 
+let currentCategorizedColors = null; 
+let currentBackgroundColors = null; 
 let newCategorizedColors = null;
 let newBackgroundColors = null;
 let initialCategorizedColors = null; 
@@ -311,8 +311,8 @@ let currentTime = null;
 let timeSinceLastChange = currentTime - lastChangeTime;
 
 window.onload = function () { //Checks if there are any user settings and automatically applies it when the page loads
-    previousCategorizedColors = extractColorsCategorized();
-    previousBackgroundColors = [...previousCategorizedColors.background.slice(0, 3)].sort();
+    currentCategorizedColors = extractColorsCategorized();
+    currentBackgroundColors = [...currentCategorizedColors.background.slice(0, 3)].sort();
     currentUrl = window.location.href; 
     lastChangeTime = performance.now();
     resetNoChangeTimer();
@@ -320,9 +320,9 @@ window.onload = function () { //Checks if there are any user settings and automa
     let observer = new MutationObserver(() => {
         newCategorizedColors = extractColorsCategorized();
         newBackgroundColors = [...newCategorizedColors.background.slice(0, 3)].sort();
-        if (JSON.stringify(previousBackgroundColors) !== JSON.stringify(newBackgroundColors)) {
-            previousCategorizedColors = newCategorizedColors;
-            previousBackgroundColors = newBackgroundColors;
+        if (JSON.stringify(currentBackgroundColors) !== JSON.stringify(newBackgroundColors)) {
+            currentCategorizedColors = newCategorizedColors;
+            currentBackgroundColors = newBackgroundColors;
             currentTime = performance.now();
             timeSinceLastChange = currentTime - lastChangeTime;
             console.log(`Time since last color update: ${timeSinceLastChange.toFixed(2)} ms`);
@@ -362,19 +362,19 @@ window.onload = function () { //Checks if there are any user settings and automa
 //Helper Functions for Initial Page Load
 //____________________________________________________________________________________________________
 
-let previousUserBackgroundColors = null; 
+let currentUserBackgroundColors = null; 
 
 function handleNoChange() {
     if (!initialCategorizedColors) {
-        initialCategorizedColors = previousCategorizedColors; 
+        initialCategorizedColors = currentCategorizedColors; 
         initialBackgroundColors = [...initialCategorizedColors.background.slice(0, 3)].sort();
-        previousUserBackgroundColors = initialBackgroundColors;
+        currentUserBackgroundColors = initialBackgroundColors;
         console.log("Initial colors: " + initialCategorizedColors.background);
         console.log("Initial colors: " + initialBackgroundColors);
     }
-    updatePageColors(initialBackgroundColors[0], previousUserBackgroundColors[0]);
-    updatePageColors(initialBackgroundColors[1], previousUserBackgroundColors[1]);
-    updatePageColors(initialBackgroundColors[2], previousUserBackgroundColors[2]);
+    updatePageColors(initialBackgroundColors[0], currentUserBackgroundColors[0]);
+    updatePageColors(initialBackgroundColors[1], currentUserBackgroundColors[1]);
+    updatePageColors(initialBackgroundColors[2], currentUserBackgroundColors[2]);
 }
 
 let noChangeTimer = null;
@@ -416,29 +416,29 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     if (message.action === 'changeColor') { //Changes the background color of the tab
         newUserBackgroundColors = [darkenColor(message.color, 40), darkenColor(message.color, 20), darkenColor(message.color, 0)];
 
-        updatePageColors(previousUserBackgroundColors[0], newUserBackgroundColors[0]);
-        updatePageColors(previousUserBackgroundColors[1], newUserBackgroundColors[1]);
-        updatePageColors(previousUserBackgroundColors[2], newUserBackgroundColors[2]);
+        updatePageColors(currentUserBackgroundColors[0], newUserBackgroundColors[0]);
+        updatePageColors(currentUserBackgroundColors[1], newUserBackgroundColors[1]);
+        updatePageColors(currentUserBackgroundColors[2], newUserBackgroundColors[2]);
 
-        previousUserBackgroundColors = newUserBackgroundColors; 
+        currentUserBackgroundColors = newUserBackgroundColors; 
     }
 
     if (message.action === 'invertColor') { //Inverts the brightness of the background color of the tab
-        newUserBackgroundColors = [invertColor(previousUserBackgroundColors[0]), invertColor(previousUserBackgroundColors[1]), invertColor(previousUserBackgroundColors[2])];
+        newUserBackgroundColors = [invertColor(currentUserBackgroundColors[0]), invertColor(currentUserBackgroundColors[1]), invertColor(currentUserBackgroundColors[2])];
 
-        updatePageColors(previousUserBackgroundColors[0], newUserBackgroundColors[0]);
-        updatePageColors(previousUserBackgroundColors[1], newUserBackgroundColors[1]);
-        updatePageColors(previousUserBackgroundColors[2], newUserBackgroundColors[2]);
+        updatePageColors(currentUserBackgroundColors[0], newUserBackgroundColors[0]);
+        updatePageColors(currentUserBackgroundColors[1], newUserBackgroundColors[1]);
+        updatePageColors(currentUserBackgroundColors[2], newUserBackgroundColors[2]);
 
-        previousUserBackgroundColors = newUserBackgroundColors; 
+        currentUserBackgroundColors = newUserBackgroundColors; 
     }
 
     if (message.action === 'reset') { //Resets and color changes made by the user
-        updatePageColors(previousUserBackgroundColors[0], initialBackgroundColors[0]);
-        updatePageColors(previousUserBackgroundColors[1], initialBackgroundColors[1]);
-        updatePageColors(previousUserBackgroundColors[2], initialBackgroundColors[2]);
+        updatePageColors(currentUserBackgroundColors[0], initialBackgroundColors[0]);
+        updatePageColors(currentUserBackgroundColors[1], initialBackgroundColors[1]);
+        updatePageColors(currentUserBackgroundColors[2], initialBackgroundColors[2]);
 
-        previousUserBackgroundColors = initialBackgroundColors;
+        currentUserBackgroundColors = initialBackgroundColors;
 
         for (let i = 0; i < elementsWithText.length; i++) {
             elementsWithText[i].style.fontFamily = originalFonts[i];
@@ -561,7 +561,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
 
     if (message.action === 'share') { //Saves changes by the user to create a website profile
         const settings = {
-            previousUserBackgroundColors,
+            previousUserBackgroundColors: currentUserBackgroundColors,
             currentContrast,
             currentBrightness,
             currentSaturation,
