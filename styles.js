@@ -233,6 +233,7 @@ let zapMode = false;
 let lastElement = null;
 const originalStyle = {};
 let zappedElements = []; 
+let zappedElementsID = []; 
 
 function zapElement(event) { //Removes an element from the tab
     if (zapMode) {
@@ -242,6 +243,15 @@ function zapElement(event) { //Removes an element from the tab
         document.removeEventListener('click', zapElement);
         zapMode = false; // Stop zapping after one element
         zappedElements.push({ element: event.target, displayStyle: event.target.style.display});
+        let identifier;
+        if (event.target.id) {
+            identifier = `ID: ${event.target.id}`;
+        } else if (event.target.className) {
+            identifier = `Class: ${event.target.className}`;
+        } else {
+            identifier = `Tag: ${event.target.tagName}`;
+        }
+        zappedElementsID.push(identifier);
         event.target.style.display = 'none';
     }
 }
@@ -392,6 +402,7 @@ function resetNoChangeTimer() {
 let newUserBackgroundColors = null;
 let elementsWithText = [];
 let originalFonts = []; 
+let currentFont = null; 
 let currentContrast = 100;
 let currentBrightness = 100;
 let currentSaturation = 100;
@@ -467,6 +478,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         for (let i = 0; i < elementsWithText.length; i++) {
             elementsWithText[i].style.fontFamily = message.font;
         }
+        currentFont = message.font;
     }
 
     if (message.action === 'changeContrast') { //Changes the contrast of the tab
@@ -548,20 +560,15 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     }
 
     if (message.action === 'share') { //Saves changes by the user to create a website profile
-        /*
-        Variables to consider: previousUserBackgroundColors, elementsWithText, originalFonts, currentContrast, currentBrightness, currentSaturation, zoomedIn, currentCase
-        Create a json file for all of these settings 
-        */
-
         const settings = {
             previousUserBackgroundColors,
             currentContrast,
             currentBrightness,
             currentSaturation,
-            originalFonts, //Should be the new fonts not original
+            currentFont,
             zoomedIn,
             currentCase,
-            zappedElements //not saving the elements correctly, also should just get the elements no need for the original display
+            zappedElementsID
         }
 
         console.log(settings);
