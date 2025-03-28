@@ -1,6 +1,6 @@
 .container {
     width: 200px;
-    height: 580px;
+    height: 600px;
     color: #314d3e;
 }
 
@@ -46,6 +46,7 @@
 }
 
 #log {
-    position: absolute;
+    margin-top: auto;
+    /*position: absolute;*/
     bottom: 0;
 }

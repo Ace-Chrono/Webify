@@ -408,6 +408,7 @@ let currentBrightness = 100;
 let currentSaturation = 100;
 let zoomedIn = false; 
 let currentCase = "normal"; 
+let loadedData = null; 
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { //Checks for any edits to the page made by the user and applies them
     /*if (message.action === 'storeTabId') { //Gets the Id of the current tab and stores it in the local chrome storage
@@ -559,9 +560,23 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         }
     }
 
+    if (message.action === "injectCSS") { //Injects any css code written by the user into the tab
+        test = generateCSS();
+        console.log(test);
+        if (message.css) {
+            let styleElement = document.getElementById('injectedCSS');
+            if (!styleElement) {
+                styleElement = document.createElement('style');
+                styleElement.id = 'injectedCSS';
+                document.head.appendChild(styleElement);
+            }
+            styleElement.textContent = message.css;
+        }
+    }
+
     if (message.action === 'share') { //Saves changes by the user to create a website profile
         const settings = {
-            previousUserBackgroundColors: currentUserBackgroundColors,
+            currentUserBackgroundColors,
             currentContrast,
             currentBrightness,
             currentSaturation,
@@ -582,19 +597,10 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
         link.click();
     }
 
-    if (message.action === "injectCSS") { //Injects any css code written by the user into the tab
-        test = generateCSS();
-        console.log(test);
-        if (message.css) {
-            let styleElement = document.getElementById('injectedCSS');
-            if (!styleElement) {
-                styleElement = document.createElement('style');
-                styleElement.id = 'injectedCSS';
-                document.head.appendChild(styleElement);
-            }
-            styleElement.textContent = message.css;
-        }
-    }
+    if (message.action === 'load') {
+        loadedData = message.data; 
+        console.log(loadedData);
+    }    
 });
 
 //____________________________________________________________________________________________________

@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const zapButton = document.getElementById("zap_button");
     const codeButton = document.getElementById("code_button");
     const shareButton = document.getElementById("share_button");
+    const fileInput = document.getElementById("jsonUpload");
+    const loadButton = document.getElementById("load_button");
 
     colorWheel.addEventListener("click", function(event) {
         log.textContent = "Color wheel clicked";
@@ -78,6 +80,28 @@ document.addEventListener("DOMContentLoaded", function() {
     shareButton.addEventListener("click", function(event) {
         log.textContent = "Share button clicked";
         chrome.runtime.sendMessage({ action: 'share'});
+    });
+
+    loadButton.addEventListener("click", function(event) {
+        if (fileInput.files.length === 0) {
+            log.textContent = "No file selected.";
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            try {
+                const jsonData = JSON.parse(event.target.result);
+                log.textContent = "JSON Loaded Successfully: " + JSON.stringify(jsonData, null, 2);
+                chrome.runtime.sendMessage({ action: "load", data: jsonData });
+            } catch (errror) {
+                log.textContent = "Couldn't load";
+            }
+        }
+
+        reader.readAsText(file);
     });
   
     function getColorAtPosition(x, y, element) {
