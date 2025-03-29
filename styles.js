@@ -600,6 +600,58 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     if (message.action === 'load') {
         loadedData = message.data; 
         console.log(loadedData);
+
+        updatePageColors(currentUserBackgroundColors[0], loadedData.currentUserBackgroundColors[0]);
+        updatePageColors(currentUserBackgroundColors[1], loadedData.currentUserBackgroundColors[1]);
+        updatePageColors(currentUserBackgroundColors[2], loadedData.currentUserBackgroundColors[2]);
+        currentUserBackgroundColors = loadedData.currentUserBackgroundColors; 
+
+        currentContrast = loadedData.currentContrast;
+        currentBrightness = loadedData.currentBrightness;
+        currentSaturation = loadedData.currentSaturation;
+        document.documentElement.style.filter = `
+        contrast(${currentContrast}%)
+        brightness(${currentBrightness}%)
+        saturate(${currentSaturation}%)
+        `;
+
+        currentFont = loadedData.currentFont;
+        if (elementsWithText.length == 0){
+            elementsWithText = findElementsWithText(document);
+            originalFonts = getInitialFonts(document);
+        }
+        for (let i = 0; i < elementsWithText.length; i++) {
+            elementsWithText[i].style.fontFamily = currentFont;
+        }
+
+        zoomedIn = loadedData.zoomedIn;
+        if (zoomedIn == true){
+            document.body.style.zoom = 150 + '%';
+        }
+        else if (zoomedIn == false){
+            document.body.style.zoom = 100 + '%';
+        }
+
+        currentCase = loadedData.currentCase; 
+        if (elementsWithText.length == 0) {
+            elementsWithText = findElementsWithText(document);
+        }
+        if (currentCase === 'normal') {
+            for (let i = 0; i < elementsWithText.length; i++) {
+                elementsWithText[i].style.textTransform = 'uppercase';
+            }
+            currentCase = 'upper';
+        } else if (currentCase === 'upper') {
+            for (let i = 0; i < elementsWithText.length; i++) {
+                elementsWithText[i].style.textTransform = 'lowercase';
+            }
+            currentCase = 'lower';
+        } else if (currentCase === 'lower') {
+            for (let i = 0; i < elementsWithText.length; i++) {
+                elementsWithText[i].style.textTransform = 'none';
+            }
+            currentCase = 'normal';
+        }
     }    
 });
 
