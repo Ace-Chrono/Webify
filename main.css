@@ -7,49 +7,15 @@
     justify-content: flex-start;  /* Aligns everything to the left */
 }
 
+.simple_features {
+    width: 250px;
+}
+
 .title {
     text-align: center;
     color: black;
     font-family: Arial, sans-serif;
     font-size: 24px;
-}
-
-#color_wheel {
-    text-align: center;
-}
-
-.color_wheel {
-    height: 200px;
-    width: 200px; 
-}
-
-.row {
-    display: grid; /* Use grid layout */
-    grid-template-columns: repeat(3, 1fr); /* Create three equal-width columns */
-    grid-gap: 10px; /* Gap between grid items */
-    margin: 10px;
-    width: 150px; 
-}
-
-.row_button {
-    padding: 5px; /* Just for visualization */
-    border: 1px solid black; /* Just for visualization */
-    text-align: center;
-    margin: 0px auto;
-    width: auto;
-}
-
-.button {
-    padding: 5px; /* Just for visualization */
-    border: 1px solid black; /* Just for visualization */
-    text-align: center;
-    margin: 10px;
-    width: 150px;
-}
-
-.tight_button {
-    padding: 0px;
-    margin: 0px auto;
 }
 
 #color_wheel {
@@ -59,12 +25,42 @@
     margin: 0 auto;
 }
 
+.color_wheel {
+    height: 200px;
+    width: 200px; 
+}
+
 #font_selector {
-    width: 200px;
-    height: 80px;
     border: 1px solid black;
-    margin: 10px auto;
     text-align: center;
+}
+
+.row {
+    display: grid; /* Use grid layout */
+    grid-template-columns: repeat(3, 1fr); /* Create three equal-width columns */
+    grid-gap: 10px; /* Gap between grid items */
+    margin: 10px;
+}
+
+.row_button {
+    padding: 5px; /* Just for visualization */
+    border: 1px solid black; /* Just for visualization */
+    text-align: center;
+    margin: 0px;
+    width: auto;
+}
+
+.button {
+    padding: 5px; /* Just for visualization */
+    border: 1px solid black; /* Just for visualization */
+    text-align: center;
+    margin: 10px;
+    width: auto;
+}
+
+.tight_button {
+    padding: 0px;
+    margin: 0px;
 }
 
 #log {
