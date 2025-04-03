@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const shareButton = document.getElementById("share_button");
     const fileInput = document.getElementById("jsonUpload");
     const loadButton = document.getElementById("load_button");
+    const saveButton = document.getElementById("save_button");
 
     colorWheel.addEventListener("click", function(event) {
         log.textContent = "Color wheel clicked";
@@ -102,6 +103,11 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         reader.readAsText(file);
+    });
+
+    saveButton.addEventListener("click", function(event) {
+        log.textContent = "Share button clicked";
+        chrome.runtime.sendMessage({ action: 'save'});
     });
   
     function getColorAtPosition(x, y, element) {
