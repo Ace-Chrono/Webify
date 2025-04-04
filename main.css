@@ -1,6 +1,6 @@
 .container {
     width: 780px;
-    height: 580px;
+    height: 560px;
     color: #314d3e;
     display: flex;
     flex-wrap: wrap;
@@ -8,7 +8,13 @@
 }
 
 .simple_features {
+    background-color: gainsboro;
     width: 250px;
+}
+
+.saving_features {
+    background-color: gainsboro;
+    width: 530px;
 }
 
 .title {
@@ -35,14 +41,25 @@
     text-align: center;
 }
 
-.row {
+.two_col_row {
+    display: grid; /* Use grid layout */
+    grid-template-columns: repeat(2, 1fr); /* Create three equal-width columns */
+    grid-gap: 10px; /* Gap between grid items */
+}
+
+.file_uploader {
+    margin: 10px;
+    width: auto;
+}
+
+.three_col_row {
     display: grid; /* Use grid layout */
     grid-template-columns: repeat(3, 1fr); /* Create three equal-width columns */
     grid-gap: 10px; /* Gap between grid items */
     margin: 10px;
 }
 
-.row_button {
+.three_col_row_button {
     padding: 5px; /* Just for visualization */
     border: 1px solid black; /* Just for visualization */
     text-align: center;
@@ -64,7 +81,7 @@
 }
 
 #log {
+    text-align: center;
     margin-top: auto;
-    /*position: absolute;*/
     bottom: 0;
 }

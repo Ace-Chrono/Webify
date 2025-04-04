@@ -8,16 +8,16 @@
     <script type="module" src="main.js"></script>
     <div class="container">
       <div class = "simple_features">
-        <div class="title">Webify</div>
+        <div class = "title">Webify</div>
         <div id="color_wheel">
           <img id="wheel_image" class = "color_wheel" src="assets/Gradient_color_wheel.png" >
         </div>
-        <div class="row">
-          <div id ="invert_button" class="row_button">Invert</div>
-          <div id = "advanced_button" class="row_button">Advanced</div>
-          <div id = "reset_button" class="row_button">Reset</div>
+        <div class="three_col_row">
+          <div id ="invert_button" class="three_col_row_button">Invert</div>
+          <div id = "advanced_button" class="three_col_row_button">Advanced</div>
+          <div id = "reset_button" class="three_col_row_button">Reset</div>
         </div>
-        <div id="font_selector" class = "row">
+        <div id="font_selector" class = "three_col_row">
           <div class="tight_button">
             <p style="font-family: 'Arial', sans-serif; margin: 0">Aa</p>
           </div>
@@ -49,14 +49,20 @@
         <div id = "size_button" class="button">Size</div>
         <div id = "case_button" class="button">Case</div>
         <div id = "zap_button" class="button">Zap</div>
-        <div id="code_button" class="button">Code</div>
-        <div id="share_button" class="button">Share</div>
-        <input type="file" id="jsonUpload" accept=".json">
-        <div id = "load_button" class = "button">Load</div>
-        <div id = "save_button" class = "button">Save</div>
-        <div id="log">Nothing</div>
+        <div id= "code_button" class="button">Code</div>
+        <div id = "share_button" class="button">Share</div>
+        <div id = "log">Nothing</div>
       </div>
-      <div>Advanced Options</div>
+      <div class = "saving_features">
+        <div class = "two_col_row">
+          <input type = "file" class = "file_uploader" id = "jsonUpload" accept=".json">
+          <div id = "load_button" class = "button">Load</div>
+        </div>
+        <div id = "save_button" class = "button">Save</div>
+        <div class = "preset_list">
+          <div class = "title">User Presets</div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
