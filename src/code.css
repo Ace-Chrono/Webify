@@ -10,27 +10,8 @@ body {
 }
 
 .cm-editor {
-    font-size: 16px;
-}
-
-/* Container for the textarea and line numbers */
-.editor-container {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-}
-
-/* Line number column */
-.line-numbers {
-    background-color: #f3f3f3;
-    color: #888;
-    padding: 5px;
-    text-align: right;
-    user-select: none;
-    border-right: 1px solid #ccc;
-    box-sizing: border-box;
+    font-size: 16px; 
+    font-family: 'Arial', sans-serif;
 }
 
 /* Textarea styling */

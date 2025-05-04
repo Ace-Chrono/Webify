@@ -105,12 +105,12 @@ document.addEventListener("DOMContentLoaded", function() {
         chrome.runtime.sendMessage({ action: 'changeColor', color: color });
     });
     
-    invertButton.addEventListener("click", function(event) {
+    invertButton.addEventListener("click", function() {
         log.textContent = "Invert button clicked";
         chrome.runtime.sendMessage({ action: 'invertColor'});
     });
     
-    resetButton.addEventListener("click", function(event) {
+    resetButton.addEventListener("click", function() {
         log.textContent = "Reset button clicked";
         chrome.runtime.sendMessage({ action: 'reset'});
     });
@@ -127,37 +127,50 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    advancedButton.addEventListener("click", function(event) {
+    let advancedPopup = null; 
+
+    advancedButton.addEventListener("click", function() {
         log.textContent = "Advanced button clicked";
-        window.open('advanced.html', 'AdvancedOptions', 'width=700,height=200');
+        if (!advancedPopup || advancedPopup.closed) {
+            advancedPopup = window.open('advanced.html', 'AdvancedOptions', 'width=700,height=200');
+        } else {
+            advancedPopup.focus();
+        }
+        
     });
 
-    sizeButton.addEventListener("click", function(event) {
+    sizeButton.addEventListener("click", function() {
         log.textContent = "Size button clicked";
         chrome.runtime.sendMessage({ action: 'changeSize'});
     });
 
-    caseButton.addEventListener("click", function(event) {
+    caseButton.addEventListener("click", function() {
         log.textContent = "Case button clicked";
         chrome.runtime.sendMessage({ action: 'changeCase'});
     });
 
-    zapButton.addEventListener("click", function(event) {
+    zapButton.addEventListener("click", function() {
         log.textContent = "Zap button clicked";
         chrome.runtime.sendMessage({ action: 'zap'});
     });
 
-    codeButton.addEventListener("click", function(event) {
+    let codePopup = null; 
+
+    codeButton.addEventListener("click", function() {
         log.textContent = "Code button clicked";
-        window.open('code.html', 'CodeEditor', 'width=600,height=800');
+        if (!codePopup || codePopup.closed) {
+            codePopup = window.open('code.html', 'CodeEditor', 'width=600,height=800');
+        } else {
+            codePopup.focus();
+        }
     });
 
-    shareButton.addEventListener("click", function(event) {
+    shareButton.addEventListener("click", function() {
         log.textContent = "Share button clicked";
         chrome.runtime.sendMessage({ action: 'share'});
     });
 
-    loadButton.addEventListener("click", function(event) {
+    loadButton.addEventListener("click", function() {
         if (fileInput.files.length === 0) {
             log.textContent = "No file selected.";
             return;
@@ -179,12 +192,12 @@ document.addEventListener("DOMContentLoaded", function() {
         reader.readAsText(file);
     });
 
-    saveButton.addEventListener("click", function(event) {
+    saveButton.addEventListener("click", function() {
         log.textContent = "Save button clicked";
         chrome.runtime.sendMessage({ action: 'save', name: presetNameField.value});
     });
 
-    clearButton.addEventListener("click", function(event) {
+    clearButton.addEventListener("click", function() {
         log.textContent = "Clear button clicked";
         chrome.runtime.sendMessage({ action: 'clear'});
     });
@@ -204,4 +217,13 @@ document.addEventListener("DOMContentLoaded", function() {
     function rgbToHex(r, g, b) {
         return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
+
+    window.addEventListener("unload", () => {
+        if (advancedPopup && !advancedPopup.closed) {
+            advancedPopup.close();
+        }
+        if (codePopup && !codePopup.closed) {
+            codePopup.close();
+        }
+    });
   });

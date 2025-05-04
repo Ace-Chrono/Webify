@@ -77,7 +77,7 @@ function shouldSkipElement(element) { //Skips elements that dont display color a
 }
 
 function isFullyTransparent(color) { //Checks if a color is transparent at all
-    const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d\.]+)?\)/);
+    const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([\d.]+)?\)/);
     return rgbaMatch && rgbaMatch[4] !== undefined && parseFloat(rgbaMatch[4]) < 1;
 }
 
@@ -605,7 +605,7 @@ function resetNoChangeTimer() {
 let newUserBackgroundColors = null;
 let loadedData = null;
 
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { //Checks for any edits to the page made by the user and applies them
+chrome.runtime.onMessage.addListener(function(message) { //Checks for any edits to the page made by the user and applies them
     /*if (message.action === 'storeTabId') { //Gets the Id of the current tab and stores it in the local chrome storage
         chrome.storage.local.set({ activeTabId: sender.tab.id });
     }*/
@@ -677,7 +677,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) { /
     }
     if (message.action === 'save') {
         const presetName = message.name;
-        newPreset = createPreset(presetName);
+        const newPreset = createPreset(presetName);
         addPreset(newPreset);
     }
     if (message.action === 'clear') {

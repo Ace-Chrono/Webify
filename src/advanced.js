@@ -25,15 +25,15 @@ document.addEventListener("DOMContentLoaded", function() {
     brightnessBar.addEventListener("input", saveSettings);
     saturationBar.addEventListener("input", saveSettings);
 
-    contrastBar.addEventListener('input', function(event) {
+    contrastBar.addEventListener('input', function() {
         const currentValue = contrastBar.value;
         chrome.runtime.sendMessage({ action: 'changeContrast', amount: currentValue});
     });
-    brightnessBar.addEventListener('input', function(event) {
+    brightnessBar.addEventListener('input', function() {
         const currentValue = brightnessBar.value;
         chrome.runtime.sendMessage({ action: 'changeBrightness', amount: currentValue});
     });
-    saturationBar.addEventListener('input', function(event) {
+    saturationBar.addEventListener('input', function() {
         const currentValue = saturationBar.value;
         chrome.runtime.sendMessage({ action: 'changeSaturation', amount: currentValue});
     });
