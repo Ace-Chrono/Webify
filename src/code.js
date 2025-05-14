@@ -35,4 +35,10 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log(cssCode);
         chrome.runtime.sendMessage({ action: 'injectCSS', css: cssCode});
     });
+
+    chrome.runtime.onMessage.addListener((message) => {
+        if (message.action === "closePopups") {
+            window.close(); 
+        }
+    });
 });

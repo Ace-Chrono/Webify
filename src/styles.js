@@ -1,4 +1,4 @@
-function updatePageColors(baseColor, newBaseColor) { //Filters through all the elements in the active tab and assigns any elements with the baseColor to the newBaseColor
+function updatePageColors(baseColor, newBaseColor, isBackground) { //Filters through all the elements in the active tab and assigns any elements with the baseColor to the newBaseColor
     document.querySelectorAll('*').forEach((element) => {
         if (shouldSkipElement(element)) return;
 
@@ -6,10 +6,10 @@ function updatePageColors(baseColor, newBaseColor) { //Filters through all the e
         const backgroundColor = styles.backgroundColor;
         const textColor = styles.color;
 
-        if (isValidColor(backgroundColor) && colorsMatch(backgroundColor, baseColor)) {
+        if (isValidColor(backgroundColor) && colorsMatch(backgroundColor, baseColor) && isBackground) {
             element.style.backgroundColor = newBaseColor;
         }
-        if (isValidColor(textColor) && colorsMatch(textColor, baseColor)) {
+        if (isValidColor(textColor) && colorsMatch(textColor, baseColor) && !isBackground) {
             element.style.color = newBaseColor;
         }
     });
@@ -337,6 +337,11 @@ function applyPreset(presetData) {
 }
 
 function resetPreset() {
+    const styleElement = document.getElementById('injectedCSS');
+    if (styleElement) {
+        styleElement.remove();
+    }
+
     changeBackgroundColor(initialBackgroundColors);
     changeAdvancedSettings(100,100,100);
     changeFont(null);
@@ -351,11 +356,6 @@ function resetPreset() {
 
     for (let i = 0; i < zappedElements.length; i++) {
         zappedElements[i].element.style.display = zappedElements[i].displayStyle;
-    }
-
-    const styleElement = document.getElementById('injectedCSS');
-    if (styleElement) {
-        styleElement.remove();
     }
 }
 
@@ -388,9 +388,9 @@ function addPreset(newPreset) {
 }
 
 function changeBackgroundColor(newColors) {
-    updatePageColors(currentUserBackgroundColors[0], newColors[0]);
-    updatePageColors(currentUserBackgroundColors[1], newColors[1]);
-    updatePageColors(currentUserBackgroundColors[2], newColors[2]);
+    updatePageColors(currentUserBackgroundColors[0], newColors[0], true);
+    updatePageColors(currentUserBackgroundColors[1], newColors[1], true);
+    updatePageColors(currentUserBackgroundColors[2], newColors[2], true);
     currentUserBackgroundColors = newColors; 
 }
 
@@ -576,9 +576,9 @@ function handlePageMutation() {
         console.log("Initial colors: " + initialCategorizedColors.background);
         console.log("Initial colors: " + initialBackgroundColors);
     }
-    updatePageColors(initialBackgroundColors[0], currentUserBackgroundColors[0]);
-    updatePageColors(initialBackgroundColors[1], currentUserBackgroundColors[1]);
-    updatePageColors(initialBackgroundColors[2], currentUserBackgroundColors[2]);
+    updatePageColors(initialBackgroundColors[0], currentUserBackgroundColors[0], true);
+    updatePageColors(initialBackgroundColors[1], currentUserBackgroundColors[1], true);
+    updatePageColors(initialBackgroundColors[2], currentUserBackgroundColors[2], true);
 }
 
 let noChangeTimer = null;

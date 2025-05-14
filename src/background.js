@@ -17,6 +17,27 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+chrome.tabs.onActivated.addListener(({ tabId, windowId }) => {
+    console.log("Tab activated:", tabId, windowId);
+    chrome.storage.local.get(["activeTabId", "activeWindowId"], (data) => {
+        console.log("Stored active tab/window:", data);
+        if (tabId !== data.activeTabId && windowId === data.activeWindowId) {
+            console.log("Sending closePopups");
+            chrome.runtime.sendMessage({ action: "closePopups" });
+        }
+    });
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+    console.log("Tab removed:", tabId);
+    chrome.storage.local.get(["activeTabId"], ({ activeTabId }) => {
+        if (tabId === activeTabId) {
+            console.log("Sending closePopups from removal");
+            chrome.runtime.sendMessage({ action: "closePopups" });
+        }
+    });
+});
+
 chrome.runtime.onMessage.addListener(function(message,) { //Sends the message to the active tab
     if (message.action === 'changeColor') {
         chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {

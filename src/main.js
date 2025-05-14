@@ -1,9 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         if (tabs.length > 0) {
-            const activeTabId = tabs[0].id;
-            chrome.storage.local.set({ 'activeTabId': activeTabId }, function() {
-                console.log('Active tab ID saved:', activeTabId);
+            console.log(tabs[0].id);
+            console.log(tabs[0].windowId);
+            chrome.storage.local.set({
+                activeTabId: tabs[0].id,
+                activeWindowId: tabs[0].windowId
             });
         }
     });
@@ -217,13 +219,4 @@ document.addEventListener("DOMContentLoaded", function() {
     function rgbToHex(r, g, b) {
         return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
-
-    window.addEventListener("unload", () => {
-        if (advancedPopup && !advancedPopup.closed) {
-            advancedPopup.close();
-        }
-        if (codePopup && !codePopup.closed) {
-            codePopup.close();
-        }
-    });
-  });
+});

@@ -37,4 +37,10 @@ document.addEventListener("DOMContentLoaded", function() {
         const currentValue = saturationBar.value;
         chrome.runtime.sendMessage({ action: 'changeSaturation', amount: currentValue});
     });
+
+    chrome.runtime.onMessage.addListener((message) => {
+        if (message.action === "closePopups") {
+            window.close(); 
+        }
+    });
 });
